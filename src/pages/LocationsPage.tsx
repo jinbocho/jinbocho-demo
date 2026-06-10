@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/Button";
+import { PageHeader } from "../components/ui/PageHeader";
 import { ROOMS, BOOKCASES, SECTIONS, SHELVES } from "../data/locations";
 import { OWNED_BOOKS } from "../data/books";
 
@@ -67,13 +68,11 @@ export function LocationsPage() {
   }
 
   return (
-    <div className="px-4 md:px-8 py-6 max-w-3xl mx-auto space-y-6">
-      <div>
-        <h2 className="text-2xl md:text-3xl text-ink">Librerie</h2>
-        <p className="text-ink-soft mt-1">
-          {ROOMS.length} stanze · {BOOKCASES.length} librerie · {OWNED_BOOKS.length} libri
-        </p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Librerie"
+        description={`${ROOMS.length} stanze · ${BOOKCASES.length} librerie · ${OWNED_BOOKS.length} libri`}
+      />
 
       <div className="space-y-3">
         {ROOMS.map((room) => {
@@ -88,7 +87,6 @@ export function LocationsPage() {
                 onClick={() => toggleRoom(room.id)}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-xl">🏠</span>
                   <div>
                     <p className="font-medium text-ink">{room.name}</p>
                     {room.description && (
@@ -118,7 +116,6 @@ export function LocationsPage() {
                           onClick={() => toggleBookcase(bc.id)}
                         >
                           <div className="flex items-center gap-3">
-                            <span className="text-base">📚</span>
                             <div>
                               <p className="text-sm font-medium text-ink">{bc.name}</p>
                               {bc.description && (
@@ -158,7 +155,6 @@ export function LocationsPage() {
                                     onClick={() => toggleSection(section.id)}
                                   >
                                     <div className="flex items-center gap-2">
-                                      <span className="text-sm">📂</span>
                                       <p className="text-sm text-ink-soft">
                                         {section.label ?? `Sezione ${section.section_index}`}
                                       </p>
@@ -180,7 +176,6 @@ export function LocationsPage() {
                                           className="flex items-center justify-between py-1.5 px-3 rounded-lg bg-surface border border-line/50"
                                         >
                                           <div className="flex items-center gap-2">
-                                            <span className="text-xs">📖</span>
                                             <p className="text-xs text-ink-soft">
                                               Ripiano {shelf.shelf_index}
                                             </p>

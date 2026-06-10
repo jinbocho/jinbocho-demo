@@ -3,19 +3,30 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --c-paper: 246 241 232;
-  --c-surface: 253 249 243;
-  --c-ink: 42 31 18;
-  --c-ink-soft: 122 100 80;
-  --c-brand: 168 90 56;
-  --c-brand-soft: 196 136 106;
-  --c-sage: 110 142 88;
-  --c-amber: 200 148 14;
-  --c-stone: 154 140 124;
-  --c-line: 226 216 204;
-  --c-danger: 184 60 50;
-  --shadow-card: 0 1px 3px rgb(42 31 18 / 0.08);
+@layer base {
+  :root {
+    --c-paper: 246 241 232;
+    --c-surface: 253 249 243;
+    --c-ink: 42 31 18;
+    --c-ink-soft: 122 100 80;
+    --c-brand: 168 90 56;
+    --c-brand-soft: 196 136 106;
+    --c-sage: 110 142 88;
+    --c-amber: 200 148 14;
+    --c-stone: 154 140 124;
+    --c-line: 226 216 204;
+    --c-danger: 184 60 50;
+    --shadow-card: 0 1px 3px rgb(42 31 18 / 0.08);
+    color-scheme: light;
+  }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body { @apply bg-paper text-ink font-sans antialiased; margin: 0; min-height: 100dvh; }
+
+  h1, h2, h3 { @apply font-display text-ink; }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand ring-offset-2 ring-offset-paper;
+  }
 }
-body { @apply bg-paper text-ink font-sans antialiased; margin: 0; min-height: 100dvh; }
-h1,h2,h3 { @apply font-display; }

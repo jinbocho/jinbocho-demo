@@ -1,29 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Badge } from "../components/ui/Badge";
 import { Card } from "../components/ui/Card";
+import { BookCover } from "../components/ui/BookCover";
+import { PageHeader } from "../components/ui/PageHeader";
 import { LOANS } from "../data/loans";
 import { OWNED_BOOKS, RECORDS } from "../data/books";
-
-function CoverThumb({ src, title }: { src: string | null; title: string }) {
-  const [errored, setErrored] = useState(false);
-
-  if (!src || errored) {
-    return (
-      <div className="w-full h-full flex items-center justify-center bg-brand/10 text-brand font-display text-base">
-        {title[0]}
-      </div>
-    );
-  }
-
-  return (
-    <img
-      src={src}
-      alt={title}
-      className="w-full h-full object-cover"
-      onError={() => setErrored(true)}
-    />
-  );
-}
 
 export function LoansPage() {
   const enrichedLoans = useMemo(() => {
@@ -46,13 +27,11 @@ export function LoansPage() {
   }
 
   return (
-    <div className="px-4 md:px-8 py-6 max-w-4xl mx-auto space-y-8">
-      <div>
-        <h2 className="text-2xl md:text-3xl text-ink">Prestiti</h2>
-        <p className="text-ink-soft mt-1">
-          {activeLoans.length} attiv{activeLoans.length === 1 ? "o" : "i"} · {returnedLoans.length} restituiti
-        </p>
-      </div>
+    <div className="space-y-8">
+      <PageHeader
+        title="In prestito"
+        description={`${activeLoans.length} attiv${activeLoans.length === 1 ? "o" : "i"} · ${returnedLoans.length} restituiti`}
+      />
 
       {/* Active loans */}
       <div>
@@ -91,10 +70,8 @@ export function LoansPage() {
                   >
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-11 rounded overflow-hidden bg-line shrink-0">
-                          {loan.record && (
-                            <CoverThumb src={loan.record.cover_url} title={loan.record.title} />
-                          )}
+                        <div className="w-8 h-11 shrink-0">
+                          <BookCover url={loan.record?.cover_url} title={loan.record?.title} className="h-full w-full" />
                         </div>
                         <div className="min-w-0">
                           <p className="font-medium text-ink truncate max-w-40">
@@ -156,10 +133,8 @@ export function LoansPage() {
                   >
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-11 rounded overflow-hidden bg-line shrink-0">
-                          {loan.record && (
-                            <CoverThumb src={loan.record.cover_url} title={loan.record.title} />
-                          )}
+                        <div className="w-8 h-11 shrink-0">
+                          <BookCover url={loan.record?.cover_url} title={loan.record?.title} className="h-full w-full" />
                         </div>
                         <div className="min-w-0">
                           <p className="font-medium text-ink truncate max-w-40">

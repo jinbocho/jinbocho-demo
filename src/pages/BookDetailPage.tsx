@@ -1,34 +1,13 @@
-import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
+import { BookCover } from "../components/ui/BookCover";
 import { Avatar } from "../components/ui/Avatar";
 import { OWNED_BOOKS, RECORDS } from "../data/books";
 import { USERS } from "../data/users";
 import { LOANS } from "../data/loans";
 import { READS } from "../data/reads";
 import { ROOMS, BOOKCASES, SECTIONS, SHELVES } from "../data/locations";
-
-function CoverWithFallback({ src, title }: { src: string | null; title: string }) {
-  const [errored, setErrored] = useState(false);
-
-  if (!src || errored) {
-    return (
-      <div className="w-full h-full flex items-center justify-center bg-brand/10 rounded-xl">
-        <span className="font-display text-6xl text-brand">{title[0]}</span>
-      </div>
-    );
-  }
-
-  return (
-    <img
-      src={src}
-      alt={title}
-      className="w-full h-full object-cover rounded-xl shadow-md"
-      onError={() => setErrored(true)}
-    />
-  );
-}
 
 export function BookDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -78,17 +57,15 @@ export function BookDetailPage() {
   const shelf = book.shelf_id ? SHELVES.find((s) => s.id === book.shelf_id) : null;
 
   return (
-    <div className="px-4 md:px-8 py-6 max-w-4xl mx-auto">
+    <div>
       <Button variant="ghost" size="sm" onClick={() => navigate("/catalog")} className="mb-6">
         ← Torna al catalogo
       </Button>
 
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col gap-8 md:flex-row">
         {/* Cover */}
-        <div className="md:w-52 shrink-0">
-          <div className="aspect-[2/3] w-full md:w-52 rounded-xl overflow-hidden bg-line">
-            <CoverWithFallback src={record.cover_url} title={record.title} />
-          </div>
+        <div className="shrink-0 md:w-48">
+          <BookCover url={record.cover_url} title={record.title} className="h-64 w-full rounded-lg md:h-72" />
         </div>
 
         {/* Details */}

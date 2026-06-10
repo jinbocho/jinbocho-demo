@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Card } from "../components/ui/Card";
 import { Avatar } from "../components/ui/Avatar";
+import { PageHeader } from "../components/ui/PageHeader";
 import { OWNED_BOOKS, RECORDS } from "../data/books";
 import { USERS } from "../data/users";
 import { READS } from "../data/reads";
@@ -54,23 +55,20 @@ export function StatsPage() {
   const totalBooks = OWNED_BOOKS.length;
 
   return (
-    <div className="px-4 md:px-8 py-6 max-w-4xl mx-auto space-y-8">
-      <div>
-        <h2 className="text-2xl md:text-3xl text-ink">Statistiche</h2>
-        <p className="text-ink-soft mt-1">Panoramica della biblioteca di famiglia</p>
-      </div>
+    <div className="space-y-8">
+      <PageHeader title="Statistiche" description="Panoramica della biblioteca di famiglia" />
 
       {/* Global stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <Card>
+        <Card className="p-4">
           <p className="text-xs text-ink-soft mb-1">Libri totali</p>
           <p className="text-3xl font-display font-semibold text-ink">{totalBooks}</p>
         </Card>
-        <Card>
+        <Card className="p-4">
           <p className="text-xs text-ink-soft mb-1">Letture registrate</p>
           <p className="text-3xl font-display font-semibold text-sage">{totalRead}</p>
         </Card>
-        <Card>
+        <Card className="p-4">
           <p className="text-xs text-ink-soft mb-1">Generi diversi</p>
           <p className="text-3xl font-display font-semibold text-brand">{genreStats.length}</p>
         </Card>
@@ -81,7 +79,7 @@ export function StatsPage() {
         <h3 className="text-lg font-medium text-ink mb-4">Membri della famiglia</h3>
         <div className="grid md:grid-cols-3 gap-4">
           {memberStats.map(({ user, readCount, ownedCount }) => (
-            <Card key={user.id}>
+            <Card key={user.id} className="p-4">
               <div className="flex items-center gap-3 mb-4">
                 <Avatar name={user.name} color={user.avatar_color} size="lg" />
                 <div>
@@ -107,7 +105,7 @@ export function StatsPage() {
       {/* Genre distribution */}
       <div>
         <h3 className="text-lg font-medium text-ink mb-4">Distribuzione per genere</h3>
-        <Card>
+        <Card className="p-5">
           <div className="space-y-3">
             {genreStats.map(({ genre, count, pct }) => (
               <div key={genre}>
@@ -132,7 +130,7 @@ export function StatsPage() {
       {/* Top authors */}
       <div>
         <h3 className="text-lg font-medium text-ink mb-4">Autori più presenti in biblioteca</h3>
-        <Card>
+        <Card className="p-5">
           <div className="space-y-4">
             {topAuthors.map(({ author, count }, idx) => (
               <div key={author} className="flex items-center gap-4">

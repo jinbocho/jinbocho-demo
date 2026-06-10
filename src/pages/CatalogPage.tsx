@@ -1,8 +1,11 @@
 import { useState, useMemo } from "react";
+
 import { useNavigate } from "react-router-dom";
 import { Input } from "../components/ui/Input";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
+import { BookCover } from "../components/ui/BookCover";
+import { PageHeader } from "../components/ui/PageHeader";
 import { OWNED_BOOKS, RECORDS } from "../data/books";
 import { ROOMS } from "../data/locations";
 import type { ReadingStatus } from "../data/types";
@@ -15,27 +18,6 @@ const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
   { value: "reading", label: "In lettura" },
   { value: "read", label: "Letti" },
 ];
-
-function CoverImage({ src, title }: { src: string | null; title: string }) {
-  const [errored, setErrored] = useState(false);
-
-  if (!src || errored) {
-    return (
-      <div className="w-full h-full flex items-center justify-center bg-brand/10 text-brand font-display text-2xl">
-        {title[0]}
-      </div>
-    );
-  }
-
-  return (
-    <img
-      src={src}
-      alt={title}
-      className="w-full h-full object-cover"
-      onError={() => setErrored(true)}
-    />
-  );
-}
 
 export function CatalogPage() {
   const navigate = useNavigate();
@@ -63,11 +45,8 @@ export function CatalogPage() {
   }, [joinedBooks, search, statusFilter, roomFilter]);
 
   return (
-    <div className="px-4 md:px-8 py-6 max-w-6xl mx-auto space-y-6">
-      <div>
-        <h2 className="text-2xl md:text-3xl text-ink">Catalogo</h2>
-        <p className="text-ink-soft mt-1">{OWNED_BOOKS.length} libri in biblioteca</p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader title="Libri" description={`${OWNED_BOOKS.length} libri in biblioteca`} />
 
       {/* Filters */}
       <div className="flex flex-col gap-3 md:flex-row md:items-end">
@@ -147,8 +126,8 @@ export function CatalogPage() {
               onClick={() => navigate(`/books/${book.id}`)}
             >
               {/* Cover */}
-              <div className="aspect-[2/3] rounded-lg overflow-hidden bg-line mb-2 shadow-sm group-hover:shadow-md transition-shadow">
-                <CoverImage src={book.record!.cover_url} title={book.record!.title} />
+              <div className="aspect-[2/3] mb-2">
+                <BookCover url={book.record!.cover_url} title={book.record!.title} className="h-full w-full rounded-lg" />
               </div>
               {/* Info */}
               <div>

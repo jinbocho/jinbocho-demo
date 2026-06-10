@@ -1,17 +1,10 @@
-interface CardProps {
-  children: React.ReactNode;
-  className?: string;
-  onClick?: () => void;
-}
+import type { HTMLAttributes } from "react";
 
-export function Card({ children, className = "", onClick }: CardProps) {
+export function Card({ className = "", ...rest }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={`bg-surface rounded-xl border border-line p-4 ${onClick ? "cursor-pointer hover:shadow-md transition-shadow" : ""} ${className}`}
-      style={{ boxShadow: "var(--shadow-card)" }}
-      onClick={onClick}
-    >
-      {children}
-    </div>
+      className={`rounded-lg border border-line bg-surface shadow-card ${className}`}
+      {...rest}
+    />
   );
 }

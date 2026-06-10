@@ -20,6 +20,17 @@ export default {
         display: ['"Fraunces"', "Georgia", "serif"],
         sans: ['"Inter"', "system-ui", "sans-serif"],
       },
+      borderRadius: {
+        sm: "0.375rem",
+        md: "0.5rem",
+        lg: "0.75rem",
+      },
+      boxShadow: {
+        card: "var(--shadow-card)",
+      },
+      maxWidth: {
+        content: "1024px",
+      },
     },
   },
   plugins: [],
