@@ -324,7 +324,7 @@ export const RECORDS: BibliographicRecord[] = [
     publisher: "Salani",
     publication_year: 1883,
     genre: "Avventura",
-    cover_url: null,
+    cover_url: "https://placehold.co/300x450/8b4513/d4af37?text=L'isola+del+tesoro",
   },
   {
     id: "rec33",
@@ -334,7 +334,7 @@ export const RECORDS: BibliographicRecord[] = [
     publisher: "Einaudi",
     publication_year: 1851,
     genre: "Narrativa straniera",
-    cover_url: null,
+    cover_url: "https://placehold.co/300x450/1b3a5c/87ceeb?text=Moby+Dick",
   },
   {
     id: "rec34",
@@ -354,7 +354,7 @@ export const RECORDS: BibliographicRecord[] = [
     publisher: "Feltrinelli",
     publication_year: 1927,
     genre: "Narrativa straniera",
-    cover_url: null,
+    cover_url: "https://placehold.co/300x450/2d5a3d/a8d5ba?text=Gita+al+faro",
   },
 ];
 
