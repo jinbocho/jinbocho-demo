@@ -1,3 +1,4 @@
+import { useLanguage } from "../../i18n";
 import type { ReadingStatus } from "../../data/types";
 
 type BadgeVariant = ReadingStatus | "info" | "danger";
@@ -10,20 +11,22 @@ const STYLES: Record<BadgeVariant, string> = {
   danger: "bg-danger/10 text-danger border border-danger/20",
 };
 
-const LABELS: Record<BadgeVariant, string> = {
-  read: "Letto",
-  reading: "In lettura",
-  to_read: "Da leggere",
-  info: "Info",
-  danger: "Attenzione",
-};
-
 interface BadgeProps {
   variant: BadgeVariant;
   children?: React.ReactNode;
 }
 
 export function Badge({ variant, children }: BadgeProps) {
+  const { t } = useLanguage();
+
+  const LABELS: Record<BadgeVariant, string> = {
+    read: t.badge.read,
+    reading: t.badge.reading,
+    to_read: t.badge.toRead,
+    info: t.badge.info,
+    danger: t.badge.danger,
+  };
+
   return (
     <span
       className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STYLES[variant]}`}
