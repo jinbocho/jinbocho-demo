@@ -8,10 +8,28 @@ import { USERS } from "../data/users";
 import { LOANS } from "../data/loans";
 import { READS } from "../data/reads";
 import { ROOMS, BOOKCASES, SECTIONS, SHELVES } from "../data/locations";
+import { useLanguage } from "../i18n";
 
 export function BookDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t } = useLanguage();
+
+  function fmtLong(dateStr: string) {
+    return new Date(dateStr).toLocaleDateString(t.locale, {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  }
+
+  function fmtShort(dateStr: string) {
+    return new Date(dateStr).toLocaleDateString(t.locale, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
 
   const book = OWNED_BOOKS.find((b) => b.id === id);
 
@@ -19,9 +37,9 @@ export function BookDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center px-4">
         <span className="text-5xl mb-4">📕</span>
-        <p className="text-ink font-medium text-lg">Libro non trovato</p>
+        <p className="text-ink font-medium text-lg">{t.bookDetail.notFound}</p>
         <Button variant="secondary" className="mt-4" onClick={() => navigate("/catalog")}>
-          ← Torna al catalogo
+          {t.bookDetail.backToCatalog}
         </Button>
       </div>
     );
@@ -33,9 +51,9 @@ export function BookDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center px-4">
         <span className="text-5xl mb-4">📕</span>
-        <p className="text-ink font-medium text-lg">Scheda bibliografica non trovata</p>
+        <p className="text-ink font-medium text-lg">{t.bookDetail.recordNotFound}</p>
         <Button variant="secondary" className="mt-4" onClick={() => navigate("/catalog")}>
-          ← Torna al catalogo
+          {t.bookDetail.backToCatalog}
         </Button>
       </div>
     );
@@ -59,7 +77,7 @@ export function BookDetailPage() {
   return (
     <div>
       <Button variant="ghost" size="sm" onClick={() => navigate("/catalog")} className="mb-6">
-        ← Torna al catalogo
+        {t.bookDetail.backToCatalog}
       </Button>
 
       <div className="flex flex-col gap-8 md:flex-row">
@@ -85,31 +103,31 @@ export function BookDetailPage() {
           <div className="grid grid-cols-2 gap-x-6 gap-y-3">
             {record.publication_year && (
               <div>
-                <p className="text-xs text-stone uppercase tracking-wide">Anno</p>
+                <p className="text-xs text-stone uppercase tracking-wide">{t.bookDetail.fieldYear}</p>
                 <p className="text-sm text-ink font-medium">{record.publication_year}</p>
               </div>
             )}
             {record.publisher && (
               <div>
-                <p className="text-xs text-stone uppercase tracking-wide">Editore</p>
+                <p className="text-xs text-stone uppercase tracking-wide">{t.bookDetail.fieldPublisher}</p>
                 <p className="text-sm text-ink font-medium">{record.publisher}</p>
               </div>
             )}
             {record.isbn && (
               <div>
-                <p className="text-xs text-stone uppercase tracking-wide">ISBN</p>
+                <p className="text-xs text-stone uppercase tracking-wide">{t.bookDetail.fieldIsbn}</p>
                 <p className="text-sm text-ink font-medium font-mono">{record.isbn}</p>
               </div>
             )}
             {record.genre && (
               <div>
-                <p className="text-xs text-stone uppercase tracking-wide">Genere</p>
+                <p className="text-xs text-stone uppercase tracking-wide">{t.bookDetail.fieldGenre}</p>
                 <p className="text-sm text-ink font-medium">{record.genre}</p>
               </div>
             )}
             {book.purchase_year && (
               <div>
-                <p className="text-xs text-stone uppercase tracking-wide">Acquistato</p>
+                <p className="text-xs text-stone uppercase tracking-wide">{t.bookDetail.fieldPurchased}</p>
                 <p className="text-sm text-ink font-medium">{book.purchase_year}</p>
               </div>
             )}
@@ -118,7 +136,7 @@ export function BookDetailPage() {
           {/* Position */}
           {(room || bookcase || section || shelf) && (
             <div className="bg-paper rounded-lg border border-line px-4 py-3">
-              <p className="text-xs text-stone uppercase tracking-wide mb-2">Posizione</p>
+              <p className="text-xs text-stone uppercase tracking-wide mb-2">{t.bookDetail.position}</p>
               <div className="flex items-center gap-2 flex-wrap text-sm">
                 {room && <span className="font-medium text-ink">{room.name}</span>}
                 {bookcase && (
@@ -135,19 +153,19 @@ export function BookDetailPage() {
                 {section && (
                   <>
                     <span className="text-stone">›</span>
-                    <span className="text-ink-soft">{section.label ?? `Sezione ${section.section_index}`}</span>
+                    <span className="text-ink-soft">{section.label ?? t.bookDetail.sectionLabel(section.section_index)}</span>
                   </>
                 )}
                 {shelf && (
                   <>
                     <span className="text-stone">›</span>
-                    <span className="text-ink-soft">Ripiano {shelf.shelf_index}</span>
+                    <span className="text-ink-soft">{t.bookDetail.shelfLabel(shelf.shelf_index)}</span>
                   </>
                 )}
                 {book.shelf_position != null && (
                   <>
                     <span className="text-stone">›</span>
-                    <span className="text-ink-soft">Pos. {book.shelf_position}</span>
+                    <span className="text-ink-soft">{t.bookDetail.posLabel} {book.shelf_position}</span>
                   </>
                 )}
               </div>
@@ -157,7 +175,7 @@ export function BookDetailPage() {
           {/* Owner */}
           {owner && (
             <div className="flex items-center gap-3">
-              <p className="text-xs text-stone uppercase tracking-wide">Proprietario</p>
+              <p className="text-xs text-stone uppercase tracking-wide">{t.bookDetail.owner}</p>
               <div className="flex items-center gap-2">
                 <Avatar name={owner.name} color={owner.avatar_color} size="sm" />
                 <span className="text-sm font-medium text-ink">{owner.name}</span>
@@ -169,7 +187,7 @@ export function BookDetailPage() {
           {/* Current reader */}
           {currentReader && (
             <div className="flex items-center gap-3">
-              <p className="text-xs text-stone uppercase tracking-wide">In lettura da</p>
+              <p className="text-xs text-stone uppercase tracking-wide">{t.bookDetail.readingBy}</p>
               <div className="flex items-center gap-2">
                 <Avatar name={currentReader.name} color={currentReader.avatar_color} size="sm" />
                 <span className="text-sm font-medium text-amber">{currentReader.name}</span>
@@ -180,23 +198,16 @@ export function BookDetailPage() {
           {/* Active loan */}
           {activeLoan && (
             <div className="bg-brand/5 border border-brand/20 rounded-lg px-4 py-3">
-              <p className="text-xs text-stone uppercase tracking-wide mb-1">In prestito</p>
+              <p className="text-xs text-stone uppercase tracking-wide mb-1">{t.bookDetail.loanStatus}</p>
               <p className="text-sm text-ink">
-                Prestato a <span className="font-semibold">{activeLoan.borrower_name}</span> dal{" "}
-                {new Date(activeLoan.loaned_at).toLocaleDateString("it-IT", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
+                {t.bookDetail.loanedTo} <span className="font-semibold">{activeLoan.borrower_name}</span>{" "}
+                {t.bookDetail.loanedFrom}{" "}
+                {fmtLong(activeLoan.loaned_at)}
               </p>
               {activeLoan.due_date && (
                 <p className="text-xs text-ink-soft mt-0.5">
-                  Scadenza:{" "}
-                  {new Date(activeLoan.due_date).toLocaleDateString("it-IT", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
+                  {t.bookDetail.dueDate}{" "}
+                  {fmtLong(activeLoan.due_date)}
                 </p>
               )}
             </div>
@@ -205,7 +216,7 @@ export function BookDetailPage() {
           {/* Notes */}
           {book.notes && (
             <div>
-              <p className="text-xs text-stone uppercase tracking-wide mb-1">Note</p>
+              <p className="text-xs text-stone uppercase tracking-wide mb-1">{t.bookDetail.notes}</p>
               <p className="text-sm text-ink-soft italic">{book.notes}</p>
             </div>
           )}
@@ -228,7 +239,7 @@ export function BookDetailPage() {
           {bookReads.length > 0 && (
             <div>
               <p className="text-xs text-stone uppercase tracking-wide mb-2">
-                Letto da ({bookReads.length})
+                {t.bookDetail.readBy(bookReads.length)}
               </p>
               <div className="flex flex-wrap gap-3">
                 {bookReads.map((read) =>
@@ -237,13 +248,7 @@ export function BookDetailPage() {
                       <Avatar name={read.user.name} color={read.user.avatar_color} size="sm" />
                       <div>
                         <p className="text-xs font-medium text-ink">{read.user.name}</p>
-                        <p className="text-xs text-stone">
-                          {new Date(read.read_at).toLocaleDateString("it-IT", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
-                        </p>
+                        <p className="text-xs text-stone">{fmtShort(read.read_at)}</p>
                       </div>
                     </div>
                   ) : null

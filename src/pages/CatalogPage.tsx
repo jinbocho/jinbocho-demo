@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-
 import { useNavigate } from "react-router-dom";
 import { Input } from "../components/ui/Input";
 import { Badge } from "../components/ui/Badge";
@@ -9,21 +8,23 @@ import { PageHeader } from "../components/ui/PageHeader";
 import { OWNED_BOOKS, RECORDS } from "../data/books";
 import { ROOMS } from "../data/locations";
 import type { ReadingStatus } from "../data/types";
+import { useLanguage } from "../i18n";
 
 type StatusFilter = "all" | ReadingStatus;
 
-const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
-  { value: "all", label: "Tutti" },
-  { value: "to_read", label: "Da leggere" },
-  { value: "reading", label: "In lettura" },
-  { value: "read", label: "Letti" },
-];
-
 export function CatalogPage() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [roomFilter, setRoomFilter] = useState<string>("all");
+
+  const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
+    { value: "all", label: t.catalog.statusAll },
+    { value: "to_read", label: t.catalog.statusToRead },
+    { value: "reading", label: t.catalog.statusReading },
+    { value: "read", label: t.catalog.statusRead },
+  ];
 
   const joinedBooks = useMemo(() => {
     return OWNED_BOOKS.map((ob) => {
@@ -46,14 +47,14 @@ export function CatalogPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Libri" description={`${OWNED_BOOKS.length} libri in biblioteca`} />
+      <PageHeader title={t.nav.books} description={t.catalog.booksInLibrary(OWNED_BOOKS.length)} />
 
       {/* Filters */}
       <div className="flex flex-col gap-3 md:flex-row md:items-end">
         <div className="flex-1">
           <Input
-            label="Cerca per titolo o autore"
-            placeholder="es. Calvino, 1984..."
+            label={t.catalog.searchLabel}
+            placeholder={t.catalog.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -72,7 +73,7 @@ export function CatalogPage() {
         </div>
         <div>
           <label htmlFor="room-filter" className="text-sm font-medium text-ink-soft block mb-1">
-            Stanza
+            {t.catalog.roomLabel}
           </label>
           <select
             id="room-filter"
@@ -80,7 +81,7 @@ export function CatalogPage() {
             onChange={(e) => setRoomFilter(e.target.value)}
             className="rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand/40"
           >
-            <option value="all">Tutte le stanze</option>
+            <option value="all">{t.catalog.allRooms}</option>
             {ROOMS.map((room) => (
               <option key={room.id} value={room.id}>
                 {room.name}
@@ -93,8 +94,8 @@ export function CatalogPage() {
       {/* Results count */}
       {search || statusFilter !== "all" || roomFilter !== "all" ? (
         <p className="text-sm text-ink-soft">
-          {filtered.length} risultat{filtered.length === 1 ? "o" : "i"}
-          {search && <> per "<span className="text-ink font-medium">{search}</span>"</>}
+          {t.catalog.results(filtered.length)}
+          {search && <> {t.catalog.resultsFor} "<span className="text-ink font-medium">{search}</span>"</>}
         </p>
       ) : null}
 
@@ -102,8 +103,8 @@ export function CatalogPage() {
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <span className="text-5xl mb-4">📭</span>
-          <p className="text-ink font-medium text-lg">Nessun libro trovato</p>
-          <p className="text-ink-soft text-sm mt-1">Prova a modificare i filtri di ricerca</p>
+          <p className="text-ink font-medium text-lg">{t.catalog.noResults}</p>
+          <p className="text-ink-soft text-sm mt-1">{t.catalog.noResultsHint}</p>
           <Button
             variant="secondary"
             size="sm"
@@ -114,7 +115,7 @@ export function CatalogPage() {
               setRoomFilter("all");
             }}
           >
-            Rimuovi filtri
+            {t.catalog.removeFilters}
           </Button>
         </div>
       ) : (
@@ -125,11 +126,9 @@ export function CatalogPage() {
               className="group cursor-pointer"
               onClick={() => navigate(`/books/${book.id}`)}
             >
-              {/* Cover */}
               <div className="aspect-[2/3] mb-2">
                 <BookCover url={book.record!.cover_url} title={book.record!.title} className="h-full w-full rounded-lg" />
               </div>
-              {/* Info */}
               <div>
                 <p className="text-sm font-medium text-ink leading-snug line-clamp-2 group-hover:text-brand transition-colors">
                   {book.record!.title}

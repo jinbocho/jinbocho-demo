@@ -8,13 +8,15 @@ import { OWNED_BOOKS, RECORDS } from "../data/books";
 import { USERS } from "../data/users";
 import { LOANS } from "../data/loans";
 import { READS } from "../data/reads";
-
-function fmt(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("it-IT", { day: "numeric", month: "short", year: "numeric" });
-}
+import { useLanguage } from "../i18n";
 
 export function DashboardPage() {
+  const { t } = useLanguage();
   const [pickSeed, setPickSeed] = useState(() => Math.floor(Math.random() * 1000));
+
+  function fmt(dateStr: string) {
+    return new Date(dateStr).toLocaleDateString(t.locale, { day: "numeric", month: "short", year: "numeric" });
+  }
 
   const stats = useMemo(() => ({
     total: OWNED_BOOKS.length,
@@ -96,15 +98,15 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Dashboard" description="Una panoramica della tua biblioteca di famiglia." />
+      <PageHeader title="Dashboard" description={t.dashboard.description} />
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { label: "Totale libri", value: stats.total, tone: "" },
-          { label: "Letti", value: stats.read, tone: "text-sage" },
-          { label: "In lettura", value: stats.reading, tone: "text-amber" },
-          { label: "Da leggere", value: stats.toRead, tone: "text-stone" },
+          { label: t.dashboard.statTotal, value: stats.total, tone: "" },
+          { label: t.dashboard.statRead, value: stats.read, tone: "text-sage" },
+          { label: t.dashboard.statReading, value: stats.reading, tone: "text-amber" },
+          { label: t.dashboard.statToRead, value: stats.toRead, tone: "text-stone" },
         ].map((s) => (
           <Card key={s.label} className="p-4">
             <p className="text-sm text-ink-soft">{s.label}</p>
@@ -116,9 +118,9 @@ export function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Currently reading */}
         <Card className="min-w-0 p-5">
-          <h2 className="mb-4 font-display text-lg font-semibold">In lettura</h2>
+          <h2 className="mb-4 font-display text-lg font-semibold">{t.dashboard.currentlyReading}</h2>
           {currentlyReading.length === 0 ? (
-            <p className="text-sm text-ink-soft">Nessun libro in lettura</p>
+            <p className="text-sm text-ink-soft">{t.dashboard.noCurrentlyReading}</p>
           ) : (
             <ul className="space-y-3">
               {currentlyReading.map(({ book, record }) => (
@@ -126,7 +128,7 @@ export function DashboardPage() {
                   <BookCover url={record?.cover_url} title={record?.title} className="h-12 w-9 shrink-0" />
                   <div className="min-w-0 flex-1">
                     <Link to={`/books/${book.id}`} className="block truncate font-medium text-ink hover:text-brand">
-                      {record?.title ?? "Senza titolo"}
+                      {record?.title ?? t.dashboard.untitled}
                     </Link>
                     {record?.main_author && <p className="truncate text-sm text-ink-soft">{record.main_author}</p>}
                     {book.current_reader_id && (
@@ -145,13 +147,13 @@ export function DashboardPage() {
         {/* On loan */}
         <Card className="min-w-0 p-5">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-display text-lg font-semibold">In prestito</h2>
+            <h2 className="font-display text-lg font-semibold">{t.dashboard.onLoan}</h2>
             {activeLoans.length > 0 && (
-              <Link to="/loans" className="text-xs text-brand hover:underline">Vedi tutti →</Link>
+              <Link to="/loans" className="text-xs text-brand hover:underline">{t.dashboard.seeAll}</Link>
             )}
           </div>
           {activeLoans.length === 0 ? (
-            <p className="text-sm text-ink-soft">Tutti i libri sono in casa</p>
+            <p className="text-sm text-ink-soft">{t.dashboard.allBooksHome}</p>
           ) : (
             <ul className="space-y-3">
               {activeLoans.map(({ loan, record }) => {
@@ -161,12 +163,12 @@ export function DashboardPage() {
                     <BookCover url={record?.cover_url} title={record?.title} className="h-12 w-9 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <Link to={`/books/${loan.book_id}`} className="block truncate font-medium text-ink hover:text-brand">
-                        {record?.title ?? "Senza titolo"}
+                        {record?.title ?? t.dashboard.untitled}
                       </Link>
                       <p className="truncate text-sm text-ink-soft">{loan.borrower_name}</p>
                       {loan.due_date && (
                         <p className={`text-xs ${isOverdue ? "font-medium text-amber" : "text-ink-soft"}`}>
-                          {isOverdue ? "Scaduto" : "Scade"}: {fmt(loan.due_date)}
+                          {isOverdue ? t.dashboard.overdue : t.dashboard.due}: {fmt(loan.due_date)}
                         </p>
                       )}
                     </div>
@@ -179,14 +181,14 @@ export function DashboardPage() {
 
         {/* Recently added */}
         <Card className="min-w-0 p-5">
-          <h2 className="mb-4 font-display text-lg font-semibold">Aggiunti di recente</h2>
+          <h2 className="mb-4 font-display text-lg font-semibold">{t.dashboard.recentlyAdded}</h2>
           <ul className="space-y-3">
             {recentlyAdded.map(({ book, record }) => (
               <li key={book.id} className="flex min-w-0 items-center gap-3">
                 <BookCover url={record?.cover_url} title={record?.title} className="h-12 w-9 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <Link to={`/books/${book.id}`} className="block truncate font-medium text-ink hover:text-brand">
-                    {record?.title ?? "Senza titolo"}
+                    {record?.title ?? t.dashboard.untitled}
                   </Link>
                   {record?.main_author && <p className="truncate text-sm text-ink-soft">{record.main_author}</p>}
                 </div>
@@ -198,13 +200,13 @@ export function DashboardPage() {
 
         {/* Next read pick */}
         <Card className="min-w-0 p-5">
-          <h2 className="mb-4 font-display text-lg font-semibold">Cosa leggere dopo?</h2>
+          <h2 className="mb-4 font-display text-lg font-semibold">{t.dashboard.nextRead}</h2>
           {pick ? (
             <div className="flex gap-4">
               <BookCover url={pick.record?.cover_url} title={pick.record?.title} className="h-28 w-20 shrink-0" />
               <div className="min-w-0 flex-1">
                 <Link to={`/books/${pick.book.id}`} className="block font-medium leading-snug text-ink hover:text-brand">
-                  {pick.record?.title ?? "Senza titolo"}
+                  {pick.record?.title ?? t.dashboard.untitled}
                 </Link>
                 {pick.record?.main_author && <p className="mt-1 text-sm text-ink-soft">{pick.record.main_author}</p>}
                 {pick.record?.genre && <p className="mt-1 text-xs text-ink-soft/70">{pick.record.genre}</p>}
@@ -212,29 +214,27 @@ export function DashboardPage() {
                   onClick={() => setPickSeed((s) => s + 1)}
                   className="mt-3 text-xs text-brand hover:underline"
                 >
-                  🎲 Un altro
+                  {t.dashboard.another}
                 </button>
               </div>
             </div>
           ) : (
-            <p className="text-sm text-ink-soft">Nessun libro nella lista da leggere</p>
+            <p className="text-sm text-ink-soft">{t.dashboard.noNextRead}</p>
           )}
         </Card>
 
         {/* Unread by anyone */}
         <Card className="min-w-0 p-5">
-          <h2 className="mb-2 font-display text-lg font-semibold">Non letti da nessuno</h2>
+          <h2 className="mb-2 font-display text-lg font-semibold">{t.dashboard.unreadTitle}</h2>
           <p className="font-display text-3xl font-semibold text-amber">{unreadByAnyone}</p>
-          <p className="mt-1 text-sm text-ink-soft">
-            {unreadByAnyone === 1 ? "libro" : "libri"} che nessun membro ha ancora letto
-          </p>
+          <p className="mt-1 text-sm text-ink-soft">{t.dashboard.unreadDesc(unreadByAnyone)}</p>
         </Card>
 
         {/* Family favorites */}
         <Card className="min-w-0 p-5">
-          <h2 className="mb-4 font-display text-lg font-semibold">Preferiti di famiglia</h2>
+          <h2 className="mb-4 font-display text-lg font-semibold">{t.dashboard.familyFavorites}</h2>
           {sharedFavorites.length === 0 ? (
-            <p className="text-sm text-ink-soft">Nessun libro letto da più di un membro</p>
+            <p className="text-sm text-ink-soft">{t.dashboard.noFamilyFavorites}</p>
           ) : (
             <ul className="space-y-3">
               {sharedFavorites.map(({ book, record, readCount }) => (
@@ -242,11 +242,11 @@ export function DashboardPage() {
                   <BookCover url={record?.cover_url} title={record?.title} className="h-12 w-9 shrink-0" />
                   <div className="min-w-0 flex-1">
                     <Link to={`/books/${book.id}`} className="block truncate font-medium text-ink hover:text-brand">
-                      {record?.title ?? "Senza titolo"}
+                      {record?.title ?? t.dashboard.untitled}
                     </Link>
                     {record?.main_author && <p className="truncate text-sm text-ink-soft">{record.main_author}</p>}
                   </div>
-                  <span className="shrink-0 text-xs font-medium text-sage">{readCount} membri</span>
+                  <span className="shrink-0 text-xs font-medium text-sage">{t.dashboard.members(readCount)}</span>
                 </li>
               ))}
             </ul>
@@ -256,11 +256,11 @@ export function DashboardPage() {
         {/* Reading goal */}
         <Card className="min-w-0 p-5 lg:col-span-2">
           <h2 className="mb-4 font-display text-lg font-semibold">
-            Obiettivo di lettura {new Date().getFullYear()}
+            {t.dashboard.readingGoal(new Date().getFullYear())}
           </h2>
           <div className="mb-1 flex justify-between text-sm">
             <span className="text-ink">Carmelo</span>
-            <span className="text-ink-soft">{goalDone} / {goalTarget} libri ({goalPct}%)</span>
+            <span className="text-ink-soft">{goalDone} / {goalTarget} ({goalPct}%)</span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-paper">
             <div
@@ -270,9 +270,9 @@ export function DashboardPage() {
           </div>
         </Card>
 
-        {/* Attività famiglia */}
+        {/* Family activity */}
         <Card className="min-w-0 p-5 lg:col-span-2">
-          <h2 className="mb-4 font-display text-lg font-semibold">Attività famiglia</h2>
+          <h2 className="mb-4 font-display text-lg font-semibold">{t.dashboard.activityTitle}</h2>
           <ul className="space-y-2">
             {recentReads.map((read) => (
               <li key={read.id} className="flex items-center gap-3 rounded-md bg-paper px-3 py-2.5">
@@ -284,7 +284,8 @@ export function DashboardPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm text-ink">
-                    <span className="font-medium">{read.user?.name}</span> ha letto{" "}
+                    <span className="font-medium">{read.user?.name}</span>{" "}
+                    {t.dashboard.activityVerb}{" "}
                     <span className="italic">{read.record?.title}</span>
                   </p>
                 </div>
