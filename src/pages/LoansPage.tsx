@@ -5,8 +5,11 @@ import { BookCover } from "../components/ui/BookCover";
 import { PageHeader } from "../components/ui/PageHeader";
 import { LOANS } from "../data/loans";
 import { OWNED_BOOKS, RECORDS } from "../data/books";
+import { useLanguage } from "../i18n";
 
 export function LoansPage() {
+  const { t } = useLanguage();
+
   const enrichedLoans = useMemo(() => {
     return LOANS.map((loan) => {
       const book = OWNED_BOOKS.find((b) => b.id === loan.book_id);
@@ -19,7 +22,7 @@ export function LoansPage() {
   const returnedLoans = enrichedLoans.filter((l) => l.returned_at !== null);
 
   function fmt(dateStr: string) {
-    return new Date(dateStr).toLocaleDateString("it-IT", {
+    return new Date(dateStr).toLocaleDateString(t.locale, {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -29,16 +32,16 @@ export function LoansPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        title="In prestito"
-        description={`${activeLoans.length} attiv${activeLoans.length === 1 ? "o" : "i"} · ${returnedLoans.length} restituiti`}
+        title={t.loans.title}
+        description={t.loans.subtitle(activeLoans.length, returnedLoans.length)}
       />
 
       {/* Active loans */}
       <div>
-        <h3 className="text-lg font-medium text-ink mb-4">Prestiti attivi</h3>
+        <h3 className="text-lg font-medium text-ink mb-4">{t.loans.activeLoans}</h3>
         {activeLoans.length === 0 ? (
           <Card>
-            <p className="text-center text-ink-soft py-6">Nessun prestito attivo</p>
+            <p className="text-center text-ink-soft py-6">{t.loans.noActiveLoans}</p>
           </Card>
         ) : (
           <div className="overflow-x-auto">
@@ -46,19 +49,19 @@ export function LoansPage() {
               <thead>
                 <tr className="border-b border-line">
                   <th className="text-left py-3 px-4 text-xs text-stone uppercase tracking-wide font-medium">
-                    Libro
+                    {t.loans.colBook}
                   </th>
                   <th className="text-left py-3 px-4 text-xs text-stone uppercase tracking-wide font-medium">
-                    Prestato a
+                    {t.loans.colLoanedTo}
                   </th>
                   <th className="text-left py-3 px-4 text-xs text-stone uppercase tracking-wide font-medium">
-                    Dal
+                    {t.loans.colFrom}
                   </th>
                   <th className="text-left py-3 px-4 text-xs text-stone uppercase tracking-wide font-medium">
-                    Scadenza
+                    {t.loans.colDue}
                   </th>
                   <th className="text-left py-3 px-4 text-xs text-stone uppercase tracking-wide font-medium">
-                    Stato
+                    {t.loans.colStatus}
                   </th>
                 </tr>
               </thead>
@@ -89,7 +92,7 @@ export function LoansPage() {
                       {loan.due_date ? fmt(loan.due_date) : "—"}
                     </td>
                     <td className="py-3 px-4">
-                      <Badge variant="info">In prestito</Badge>
+                      <Badge variant="info">{t.loans.statusOnLoan}</Badge>
                     </td>
                   </tr>
                 ))}
@@ -101,10 +104,10 @@ export function LoansPage() {
 
       {/* Returned loans */}
       <div>
-        <h3 className="text-lg font-medium text-ink mb-4">Prestiti restituiti</h3>
+        <h3 className="text-lg font-medium text-ink mb-4">{t.loans.returnedLoans}</h3>
         {returnedLoans.length === 0 ? (
           <Card>
-            <p className="text-center text-ink-soft py-6">Nessun prestito restituito</p>
+            <p className="text-center text-ink-soft py-6">{t.loans.noReturnedLoans}</p>
           </Card>
         ) : (
           <div className="overflow-x-auto">
@@ -112,16 +115,16 @@ export function LoansPage() {
               <thead>
                 <tr className="border-b border-line">
                   <th className="text-left py-3 px-4 text-xs text-stone uppercase tracking-wide font-medium">
-                    Libro
+                    {t.loans.colBook}
                   </th>
                   <th className="text-left py-3 px-4 text-xs text-stone uppercase tracking-wide font-medium">
-                    Prestato a
+                    {t.loans.colLoanedTo}
                   </th>
                   <th className="text-left py-3 px-4 text-xs text-stone uppercase tracking-wide font-medium">
-                    Dal
+                    {t.loans.colFrom}
                   </th>
                   <th className="text-left py-3 px-4 text-xs text-stone uppercase tracking-wide font-medium">
-                    Restituito il
+                    {t.loans.colReturnedOn}
                   </th>
                 </tr>
               </thead>

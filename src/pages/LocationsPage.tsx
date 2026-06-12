@@ -4,9 +4,11 @@ import { Button } from "../components/ui/Button";
 import { PageHeader } from "../components/ui/PageHeader";
 import { ROOMS, BOOKCASES, SECTIONS, SHELVES } from "../data/locations";
 import { OWNED_BOOKS } from "../data/books";
+import { useLanguage } from "../i18n";
 
 export function LocationsPage() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [openRooms, setOpenRooms] = useState<Set<string>>(new Set(["r1"]));
   const [openBookcases, setOpenBookcases] = useState<Set<string>>(new Set());
   const [openSections, setOpenSections] = useState<Set<string>>(new Set());
@@ -70,8 +72,8 @@ export function LocationsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Librerie"
-        description={`${ROOMS.length} stanze · ${BOOKCASES.length} librerie · ${OWNED_BOOKS.length} libri`}
+        title={t.locations.title}
+        description={t.locations.description(ROOMS.length, BOOKCASES.length, OWNED_BOOKS.length)}
       />
 
       <div className="space-y-3">
@@ -81,7 +83,6 @@ export function LocationsPage() {
 
           return (
             <div key={room.id} className="border border-line rounded-xl overflow-hidden bg-surface">
-              {/* Room header */}
               <button
                 className="w-full flex items-center justify-between px-5 py-4 hover:bg-paper transition-colors text-left"
                 onClick={() => toggleRoom(room.id)}
@@ -96,13 +97,12 @@ export function LocationsPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-ink-soft">
-                    {bookCountByRoom[room.id] ?? 0} libri
+                    {t.locations.booksCount(bookCountByRoom[room.id] ?? 0)}
                   </span>
                   <span className="text-stone text-sm">{isRoomOpen ? "▲" : "▼"}</span>
                 </div>
               </button>
 
-              {/* Bookcases */}
               {isRoomOpen && (
                 <div className="border-t border-line">
                   {bookcases.map((bc) => {
@@ -125,7 +125,7 @@ export function LocationsPage() {
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="text-xs text-ink-soft">
-                              {bookCountByBookcase[bc.id] ?? 0} libri
+                              {t.locations.booksCount(bookCountByBookcase[bc.id] ?? 0)}
                             </span>
                             <Button
                               variant="ghost"
@@ -135,13 +135,12 @@ export function LocationsPage() {
                                 navigate(`/map/${bc.id}`);
                               }}
                             >
-                              Vedi mappa
+                              {t.locations.viewMap}
                             </Button>
                             <span className="text-stone text-sm">{isBcOpen ? "▲" : "▼"}</span>
                           </div>
                         </button>
 
-                        {/* Sections */}
                         {isBcOpen && (
                           <div className="border-t border-line bg-paper/50">
                             {sections.map((section) => {
@@ -156,18 +155,17 @@ export function LocationsPage() {
                                   >
                                     <div className="flex items-center gap-2">
                                       <p className="text-sm text-ink-soft">
-                                        {section.label ?? `Sezione ${section.section_index}`}
+                                        {section.label ?? t.locations.sectionLabel(section.section_index)}
                                       </p>
                                     </div>
                                     <div className="flex items-center gap-3">
                                       <span className="text-xs text-stone">
-                                        {bookCountBySection[section.id] ?? 0} libri
+                                        {t.locations.booksCount(bookCountBySection[section.id] ?? 0)}
                                       </span>
                                       <span className="text-stone text-xs">{isSectionOpen ? "▲" : "▼"}</span>
                                     </div>
                                   </button>
 
-                                  {/* Shelves */}
                                   {isSectionOpen && (
                                     <div className="pl-20 pr-5 py-2 space-y-1">
                                       {shelves.map((shelf) => (
@@ -175,13 +173,11 @@ export function LocationsPage() {
                                           key={shelf.id}
                                           className="flex items-center justify-between py-1.5 px-3 rounded-lg bg-surface border border-line/50"
                                         >
-                                          <div className="flex items-center gap-2">
-                                            <p className="text-xs text-ink-soft">
-                                              Ripiano {shelf.shelf_index}
-                                            </p>
-                                          </div>
+                                          <p className="text-xs text-ink-soft">
+                                            {t.locations.shelfLabel(shelf.shelf_index)}
+                                          </p>
                                           <span className="text-xs text-stone">
-                                            {bookCountByShelf[shelf.id] ?? 0} libri
+                                            {t.locations.booksCount(bookCountByShelf[shelf.id] ?? 0)}
                                           </span>
                                         </div>
                                       ))}

@@ -5,8 +5,11 @@ import { PageHeader } from "../components/ui/PageHeader";
 import { OWNED_BOOKS, RECORDS } from "../data/books";
 import { USERS } from "../data/users";
 import { READS } from "../data/reads";
+import { useLanguage } from "../i18n";
 
 export function StatsPage() {
+  const { t } = useLanguage();
+
   const memberStats = useMemo(() => {
     return USERS.map((user) => {
       const readCount = READS.filter((r) => r.user_id === user.id).length;
@@ -50,33 +53,32 @@ export function StatsPage() {
   }, []);
 
   const maxAuthorCount = topAuthors[0]?.count ?? 1;
-
   const totalRead = READS.length;
   const totalBooks = OWNED_BOOKS.length;
 
   return (
     <div className="space-y-8">
-      <PageHeader title="Statistiche" description="Panoramica della biblioteca di famiglia" />
+      <PageHeader title={t.stats.title} description={t.stats.description} />
 
       {/* Global stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <Card className="p-4">
-          <p className="text-xs text-ink-soft mb-1">Libri totali</p>
+          <p className="text-xs text-ink-soft mb-1">{t.stats.totalBooks}</p>
           <p className="text-3xl font-display font-semibold text-ink">{totalBooks}</p>
         </Card>
         <Card className="p-4">
-          <p className="text-xs text-ink-soft mb-1">Letture registrate</p>
+          <p className="text-xs text-ink-soft mb-1">{t.stats.registeredReads}</p>
           <p className="text-3xl font-display font-semibold text-sage">{totalRead}</p>
         </Card>
         <Card className="p-4">
-          <p className="text-xs text-ink-soft mb-1">Generi diversi</p>
+          <p className="text-xs text-ink-soft mb-1">{t.stats.distinctGenres}</p>
           <p className="text-3xl font-display font-semibold text-brand">{genreStats.length}</p>
         </Card>
       </div>
 
       {/* Per member */}
       <div>
-        <h3 className="text-lg font-medium text-ink mb-4">Membri della famiglia</h3>
+        <h3 className="text-lg font-medium text-ink mb-4">{t.stats.familyMembers}</h3>
         <div className="grid md:grid-cols-3 gap-4">
           {memberStats.map(({ user, readCount, ownedCount }) => (
             <Card key={user.id} className="p-4">
@@ -89,11 +91,11 @@ export function StatsPage() {
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-ink-soft">Libri letti</span>
+                  <span className="text-ink-soft">{t.stats.booksRead}</span>
                   <span className="font-semibold text-sage">{readCount}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-ink-soft">Libri posseduti</span>
+                  <span className="text-ink-soft">{t.stats.booksOwned}</span>
                   <span className="font-semibold text-ink">{ownedCount}</span>
                 </div>
               </div>
@@ -104,16 +106,14 @@ export function StatsPage() {
 
       {/* Genre distribution */}
       <div>
-        <h3 className="text-lg font-medium text-ink mb-4">Distribuzione per genere</h3>
+        <h3 className="text-lg font-medium text-ink mb-4">{t.stats.genreDistribution}</h3>
         <Card className="p-5">
           <div className="space-y-3">
             {genreStats.map(({ genre, count, pct }) => (
               <div key={genre}>
                 <div className="flex justify-between text-sm mb-1">
                   <span className="text-ink font-medium">{genre}</span>
-                  <span className="text-ink-soft">
-                    {count} libr{count === 1 ? "o" : "i"} · {pct}%
-                  </span>
+                  <span className="text-ink-soft">{t.stats.genreCount(count, pct)}</span>
                 </div>
                 <div className="w-full bg-line rounded-full h-2 overflow-hidden">
                   <div
@@ -129,7 +129,7 @@ export function StatsPage() {
 
       {/* Top authors */}
       <div>
-        <h3 className="text-lg font-medium text-ink mb-4">Autori più presenti in biblioteca</h3>
+        <h3 className="text-lg font-medium text-ink mb-4">{t.stats.topAuthors}</h3>
         <Card className="p-5">
           <div className="space-y-4">
             {topAuthors.map(({ author, count }, idx) => (
@@ -140,9 +140,7 @@ export function StatsPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between text-sm mb-1">
                     <span className="font-medium text-ink truncate">{author}</span>
-                    <span className="text-ink-soft ml-2 shrink-0">
-                      {count} libr{count === 1 ? "o" : "i"}
-                    </span>
+                    <span className="text-ink-soft ml-2 shrink-0">{t.stats.authorCount(count)}</span>
                   </div>
                   <div className="w-full bg-line rounded-full h-2 overflow-hidden">
                     <div
