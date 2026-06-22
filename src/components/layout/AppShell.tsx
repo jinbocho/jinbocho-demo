@@ -1,6 +1,8 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { DemoBanner } from "./DemoBanner";
 import { useLanguage } from "../../i18n";
+import { useAuth } from "../../store/AuthContext";
+import { Avatar } from "../ui/Avatar";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -8,7 +10,9 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { lang, setLang, t } = useLanguage();
+  const { currentUser, logout, hasRole } = useAuth();
 
   const NAV_ITEMS = [
     { path: "/", label: t.nav.home, icon: "🏠", end: true },
@@ -16,6 +20,8 @@ export function AppShell({ children }: AppShellProps) {
     { path: "/loans", label: t.nav.loans, icon: "📤" },
     { path: "/locations", label: t.nav.locations, icon: "🗄" },
     { path: "/stats", label: t.nav.stats, icon: "📊" },
+    ...(hasRole("admin") ? [{ path: "/users", label: t.nav.users, icon: "👥" }] : []),
+    { path: "/settings", label: t.nav.settings, icon: "⚙️" },
   ];
 
   function getMobileTitle(pathname: string): string {
@@ -25,7 +31,14 @@ export function AppShell({ children }: AppShellProps) {
     if (pathname.startsWith("/locations") || pathname.startsWith("/map")) return t.nav.locations;
     if (pathname.startsWith("/stats")) return t.nav.stats;
     if (pathname.startsWith("/books")) return t.nav.bookDetail;
+    if (pathname.startsWith("/users")) return t.nav.users;
+    if (pathname.startsWith("/settings")) return t.nav.settings;
     return "Jinbocho";
+  }
+
+  function handleLogout() {
+    logout();
+    navigate("/login", { replace: true });
   }
 
   return (
@@ -58,25 +71,29 @@ export function AppShell({ children }: AppShellProps) {
               </NavLink>
             ))}
           </nav>
-          <div className="flex items-center gap-2 border-t border-line px-4 py-3">
-            <div
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
-              style={{ backgroundColor: "#a85a38" }}
-            >
-              C
+          {currentUser && (
+            <div className="flex items-center gap-2 border-t border-line px-4 py-3">
+              <Avatar name={currentUser.name} color={currentUser.avatar_color} size="sm" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-ink">{currentUser.name}</p>
+                <p className="text-xs capitalize text-ink-soft">{t.enums.role[currentUser.role]}</p>
+              </div>
+              <button
+                onClick={() => setLang(lang === "it" ? "en" : "it")}
+                className="shrink-0 rounded-md border border-line px-2 py-0.5 text-xs font-medium text-ink-soft hover:bg-paper hover:text-ink transition-colors"
+                title={lang === "it" ? "Switch to English" : "Passa all'italiano"}
+              >
+                {lang === "it" ? "EN" : "IT"}
+              </button>
+              <button
+                onClick={handleLogout}
+                className="shrink-0 rounded-md border border-line px-2 py-0.5 text-xs font-medium text-ink-soft hover:bg-paper hover:text-danger transition-colors"
+                title={t.common.logout}
+              >
+                ⏻
+              </button>
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-ink">Carmelo</p>
-              <p className="text-xs capitalize text-ink-soft">admin</p>
-            </div>
-            <button
-              onClick={() => setLang(lang === "it" ? "en" : "it")}
-              className="ml-auto shrink-0 rounded-md border border-line px-2 py-0.5 text-xs font-medium text-ink-soft hover:bg-paper hover:text-ink transition-colors"
-              title={lang === "it" ? "Switch to English" : "Passa all'italiano"}
-            >
-              {lang === "it" ? "EN" : "IT"}
-            </button>
-          </div>
+          )}
         </aside>
 
         {/* Content area */}
@@ -92,12 +109,7 @@ export function AppShell({ children }: AppShellProps) {
               >
                 {lang === "it" ? "EN" : "IT"}
               </button>
-              <div
-                className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold text-white"
-                style={{ backgroundColor: "#a85a38" }}
-              >
-                C
-              </div>
+              {currentUser && <Avatar name={currentUser.name} color={currentUser.avatar_color} size="sm" />}
             </div>
           </header>
 

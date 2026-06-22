@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/Button";
-import { BOOKCASES, ROOMS, SECTIONS, SHELVES } from "../data/locations";
-import { OWNED_BOOKS, RECORDS } from "../data/books";
+import { useData } from "../store/DataContext";
 import type { ReadingStatus } from "../data/types";
 import { useLanguage } from "../i18n";
 
@@ -57,8 +56,9 @@ export function BookcaseMapPage() {
   const { bookcaseId } = useParams<{ bookcaseId: string }>();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { bookcases, rooms, sections: allSections, shelves: allShelves, books, records } = useData();
 
-  const bookcase = BOOKCASES.find((bc) => bc.id === bookcaseId);
+  const bookcase = bookcases.find((bc) => bc.id === bookcaseId);
 
   if (!bookcase) {
     return (
@@ -72,8 +72,8 @@ export function BookcaseMapPage() {
     );
   }
 
-  const room = ROOMS.find((r) => r.id === bookcase.room_id);
-  const sections = SECTIONS.filter((s) => s.bookcase_id === bookcaseId).sort(
+  const room = rooms.find((r) => r.id === bookcase.room_id);
+  const sections = allSections.filter((s) => s.bookcase_id === bookcaseId).sort(
     (a, b) => a.section_index - b.section_index
   );
 
@@ -112,7 +112,7 @@ export function BookcaseMapPage() {
       {/* Sections and shelves */}
       <div className="space-y-8">
         {sections.map((section) => {
-          const shelves = SHELVES.filter((s) => s.section_id === section.id).sort(
+          const shelves = allShelves.filter((s) => s.section_id === section.id).sort(
             (a, b) => a.shelf_index - b.shelf_index
           );
 
@@ -124,7 +124,7 @@ export function BookcaseMapPage() {
 
               <div className="space-y-4">
                 {shelves.map((shelf) => {
-                  const booksOnShelf = OWNED_BOOKS.filter((b) => b.shelf_id === shelf.id).sort(
+                  const booksOnShelf = books.filter((b) => b.shelf_id === shelf.id).sort(
                     (a, b) => (a.shelf_position ?? 0) - (b.shelf_position ?? 0)
                   );
 
@@ -140,7 +140,7 @@ export function BookcaseMapPage() {
                             </div>
                           ) : (
                             booksOnShelf.map((book) => {
-                              const record = RECORDS.find((r) => r.id === book.record_id);
+                              const record = records.find((r) => r.id === book.record_id);
                               return (
                                 <BookSpine
                                   key={book.id}

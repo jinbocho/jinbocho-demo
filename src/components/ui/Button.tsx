@@ -1,5 +1,5 @@
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost";
+  variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: "sm" | "md";
   children: React.ReactNode;
 }
@@ -8,6 +8,7 @@ const VARIANT_STYLES = {
   primary: "bg-brand text-white hover:bg-brand/90 active:bg-brand/80",
   secondary: "bg-surface border border-line text-ink hover:bg-paper active:bg-line",
   ghost: "text-ink-soft hover:text-ink hover:bg-paper active:bg-line",
+  danger: "bg-danger text-white hover:bg-danger/90 active:bg-danger/80",
 };
 
 const SIZE_STYLES = {

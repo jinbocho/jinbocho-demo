@@ -3,20 +3,20 @@ import { Badge } from "../components/ui/Badge";
 import { Card } from "../components/ui/Card";
 import { BookCover } from "../components/ui/BookCover";
 import { PageHeader } from "../components/ui/PageHeader";
-import { LOANS } from "../data/loans";
-import { OWNED_BOOKS, RECORDS } from "../data/books";
+import { useData } from "../store/DataContext";
 import { useLanguage } from "../i18n";
 
 export function LoansPage() {
   const { t } = useLanguage();
+  const { loans, books, records } = useData();
 
   const enrichedLoans = useMemo(() => {
-    return LOANS.map((loan) => {
-      const book = OWNED_BOOKS.find((b) => b.id === loan.book_id);
-      const record = book ? RECORDS.find((r) => r.id === book.record_id) : null;
+    return loans.map((loan) => {
+      const book = books.find((b) => b.id === loan.book_id);
+      const record = book ? records.find((r) => r.id === book.record_id) : null;
       return { ...loan, record };
     });
-  }, []);
+  }, [loans, books, records]);
 
   const activeLoans = enrichedLoans.filter((l) => l.returned_at === null);
   const returnedLoans = enrichedLoans.filter((l) => l.returned_at !== null);
