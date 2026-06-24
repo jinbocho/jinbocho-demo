@@ -189,6 +189,9 @@ export interface Translations {
     noResults: string;
     noResultsHint: string;
     removeFilters: string;
+    filtersToggle: string;
+    locationFilterActive: (name: string) => string;
+    clearLocationFilter: string;
   };
   books: {
     duplicateTitle: string;
@@ -199,11 +202,21 @@ export interface Translations {
       pageTitle: string;
       typeTab: string;
       scanTab: string;
+      searchTab: string;
       isbnLabel: string;
       lookupButton: string;
       notFoundMessage: string;
       manualEntryButton: string;
       simulateScanButton: string;
+      searchTitleLabel: string;
+      searchTitlePlaceholder: string;
+      searchAuthorLabel: string;
+      searchAuthorPlaceholder: string;
+      searchButton: string;
+      searchMissingQuery: string;
+      searchNoResults: string;
+      searchResultsHint: string;
+      searchSelect: string;
       formTitle: string;
       titleLabel: string;
       authorLabel: string;
@@ -302,6 +315,17 @@ export interface Translations {
     noReturnedLoans: string;
     colReturnedOn: string;
     statusOnLoan: string;
+    searchPlaceholder: string;
+    filtersToggle: string;
+    filterStatus: string;
+    statusOverdue: string;
+    statusWarning: string;
+    statusNormal: string;
+    clearFilters: string;
+    noSearchResults: string;
+    overdueBadge: (n: number) => string;
+    markReturnedAction: string;
+    returnSuccess: string;
   };
   locations: {
     title: string;
@@ -326,6 +350,10 @@ export interface Translations {
     labelLabel: string;
     notesLabel: string;
     emptyTitle: string;
+    viewBooksLink: string;
+    booksWarning: (n: number) => string;
+    sectionCountLabel: string;
+    shelfCountLabel: string;
   };
   bookcaseMap: {
     notFound: string;
@@ -344,6 +372,7 @@ export interface Translations {
     familyMembers: string;
     booksRead: string;
     booksOwned: string;
+    favoriteGenreLabel: string;
     genreDistribution: string;
     genreCount: (n: number, pct: number) => string;
     topAuthors: string;
@@ -568,6 +597,9 @@ export const it: Translations = {
     noResults: "Nessun libro trovato",
     noResultsHint: "Prova a modificare i filtri di ricerca",
     removeFilters: "Rimuovi filtri",
+    filtersToggle: "Filtri",
+    locationFilterActive: (name) => `Stai vedendo i libri in: ${name}`,
+    clearLocationFilter: "Rimuovi filtro posizione",
   },
   books: {
     duplicateTitle: "Possibile duplicato",
@@ -578,11 +610,21 @@ export const it: Translations = {
       pageTitle: "Aggiungi libro",
       typeTab: "Digita ISBN",
       scanTab: "Scansiona",
+      searchTab: "Cerca per titolo/autore",
       isbnLabel: "ISBN",
       lookupButton: "Cerca",
       notFoundMessage: "ISBN non trovato in questa demo. Inserisci i dati manualmente.",
       manualEntryButton: "Inserisci manualmente",
       simulateScanButton: "📷 Simula scansione",
+      searchTitleLabel: "Titolo",
+      searchTitlePlaceholder: "es. Il nome della rosa",
+      searchAuthorLabel: "Autore",
+      searchAuthorPlaceholder: "es. Umberto Eco",
+      searchButton: "Cerca",
+      searchMissingQuery: "Inserisci almeno un titolo o un autore",
+      searchNoResults: "Nessun risultato per questa ricerca",
+      searchResultsHint: "Seleziona un risultato per precompilare la scheda",
+      searchSelect: "Seleziona",
       formTitle: "Dati del libro",
       titleLabel: "Titolo",
       authorLabel: "Autore",
@@ -682,6 +724,17 @@ export const it: Translations = {
     noReturnedLoans: "Nessun prestito restituito",
     colReturnedOn: "Restituito il",
     statusOnLoan: "In prestito",
+    searchPlaceholder: "Cerca per libro o nome...",
+    filtersToggle: "Filtri",
+    filterStatus: "Stato scadenza",
+    statusOverdue: "In ritardo",
+    statusWarning: "In scadenza",
+    statusNormal: "Regolare",
+    clearFilters: "Rimuovi filtri",
+    noSearchResults: "Nessun prestito corrisponde alla ricerca",
+    overdueBadge: (n) => `${n} in ritardo`,
+    markReturnedAction: "Segna come restituito",
+    returnSuccess: "Prestito segnato come restituito",
   },
   locations: {
     title: "Librerie",
@@ -707,6 +760,10 @@ export const it: Translations = {
     labelLabel: "Etichetta (opzionale)",
     notesLabel: "Note (opzionale)",
     emptyTitle: "Nessuna stanza ancora",
+    viewBooksLink: "Mostra libri qui",
+    booksWarning: (n) => (n === 0 ? "" : ` ${n} libr${n === 1 ? "o" : "i"} qui dentro perderanno la posizione.`),
+    sectionCountLabel: "Numero di sezioni",
+    shelfCountLabel: "Numero di ripiani",
   },
   bookcaseMap: {
     notFound: "Libreria non trovata",
@@ -725,6 +782,7 @@ export const it: Translations = {
     familyMembers: "Membri della famiglia",
     booksRead: "Libri letti",
     booksOwned: "Libri posseduti",
+    favoriteGenreLabel: "Genere preferito",
     genreDistribution: "Distribuzione per genere",
     genreCount: (n, pct) => `${n} libr${n === 1 ? "o" : "i"} · ${pct}%`,
     topAuthors: "Autori più presenti in biblioteca",
@@ -949,6 +1007,9 @@ export const en: Translations = {
     noResults: "No books found",
     noResultsHint: "Try adjusting your search filters",
     removeFilters: "Clear filters",
+    filtersToggle: "Filters",
+    locationFilterActive: (name) => `Showing books in: ${name}`,
+    clearLocationFilter: "Clear location filter",
   },
   books: {
     duplicateTitle: "Possible duplicate",
@@ -959,11 +1020,21 @@ export const en: Translations = {
       pageTitle: "Add book",
       typeTab: "Type ISBN",
       scanTab: "Scan",
+      searchTab: "Search by title/author",
       isbnLabel: "ISBN",
       lookupButton: "Look up",
       notFoundMessage: "ISBN not found in this demo. Enter the details manually.",
       manualEntryButton: "Enter manually",
       simulateScanButton: "📷 Simulate scan",
+      searchTitleLabel: "Title",
+      searchTitlePlaceholder: "e.g. The Name of the Rose",
+      searchAuthorLabel: "Author",
+      searchAuthorPlaceholder: "e.g. Umberto Eco",
+      searchButton: "Search",
+      searchMissingQuery: "Enter a title or an author",
+      searchNoResults: "No results for this search",
+      searchResultsHint: "Select a result to prefill the form",
+      searchSelect: "Select",
       formTitle: "Book details",
       titleLabel: "Title",
       authorLabel: "Author",
@@ -1062,6 +1133,17 @@ export const en: Translations = {
     noReturnedLoans: "No returned loans",
     colReturnedOn: "Returned on",
     statusOnLoan: "On loan",
+    searchPlaceholder: "Search by book or name...",
+    filtersToggle: "Filters",
+    filterStatus: "Due status",
+    statusOverdue: "Overdue",
+    statusWarning: "Due soon",
+    statusNormal: "On track",
+    clearFilters: "Clear filters",
+    noSearchResults: "No loans match your search",
+    overdueBadge: (n) => `${n} overdue`,
+    markReturnedAction: "Mark as returned",
+    returnSuccess: "Loan marked as returned",
   },
   locations: {
     title: "Bookcases",
@@ -1087,6 +1169,10 @@ export const en: Translations = {
     labelLabel: "Label (optional)",
     notesLabel: "Notes (optional)",
     emptyTitle: "No rooms yet",
+    viewBooksLink: "Show books here",
+    booksWarning: (n) => (n === 0 ? "" : ` ${n} book${n === 1 ? "" : "s"} here will lose their position.`),
+    sectionCountLabel: "Number of sections",
+    shelfCountLabel: "Number of shelves",
   },
   bookcaseMap: {
     notFound: "Bookcase not found",
@@ -1105,6 +1191,7 @@ export const en: Translations = {
     familyMembers: "Family members",
     booksRead: "Books read",
     booksOwned: "Books owned",
+    favoriteGenreLabel: "Favorite genre",
     genreDistribution: "Genre distribution",
     genreCount: (n, pct) => `${n} book${n === 1 ? "" : "s"} · ${pct}%`,
     topAuthors: "Most represented authors",

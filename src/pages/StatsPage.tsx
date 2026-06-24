@@ -11,13 +11,29 @@ export function StatsPage() {
   const { t } = useLanguage();
   const { books, records, users, reads, rooms } = useData();
 
+  const genreByBookId = useMemo(() => {
+    const map = new Map<string, Genre>();
+    books.forEach((b) => {
+      const record = records.find((r) => r.id === b.record_id);
+      if (record?.genre) map.set(b.id, record.genre);
+    });
+    return map;
+  }, [books, records]);
+
   const memberStats = useMemo(() => {
     return users.map((user) => {
-      const readCount = reads.filter((r) => r.user_id === user.id).length;
+      const userReads = reads.filter((r) => r.user_id === user.id);
+      const readCount = userReads.length;
       const ownedCount = books.filter((b) => b.owner_id === user.id).length;
-      return { user, readCount, ownedCount };
+      const genreCounts = new Map<Genre, number>();
+      userReads.forEach((r) => {
+        const genre = genreByBookId.get(r.book_id);
+        if (genre) genreCounts.set(genre, (genreCounts.get(genre) ?? 0) + 1);
+      });
+      const favoriteGenre = [...genreCounts.entries()].sort(([, a], [, b]) => b - a)[0]?.[0] ?? null;
+      return { user, readCount, ownedCount, favoriteGenre };
     }).sort((a, b) => b.readCount - a.readCount);
-  }, [users, reads, books]);
+  }, [users, reads, books, genreByBookId]);
 
   const genreStats = useMemo(() => {
     const counts: Partial<Record<Genre, number>> = {};
@@ -131,7 +147,7 @@ export function StatsPage() {
       <div>
         <h3 className="text-lg font-medium text-ink mb-4">{t.stats.familyMembers}</h3>
         <div className="grid md:grid-cols-3 gap-4">
-          {memberStats.map(({ user, readCount, ownedCount }) => (
+          {memberStats.map(({ user, readCount, ownedCount, favoriteGenre }) => (
             <Card key={user.id} className="p-4">
               <div className="flex items-center gap-3 mb-4">
                 <Avatar name={user.name} color={user.avatar_color} size="lg" />
@@ -149,6 +165,12 @@ export function StatsPage() {
                   <span className="text-ink-soft">{t.stats.booksOwned}</span>
                   <span className="font-semibold text-ink">{ownedCount}</span>
                 </Link>
+                {favoriteGenre && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-ink-soft">{t.stats.favoriteGenreLabel}</span>
+                    <span className="font-semibold text-ink">{t.enums.genre[favoriteGenre]}</span>
+                  </div>
+                )}
               </div>
             </Card>
           ))}

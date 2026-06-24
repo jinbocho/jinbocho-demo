@@ -5,6 +5,10 @@ import { Button } from "../ui/Button";
 
 interface ExportMenuProps {
   disabled?: boolean;
+  // "right" anchors the menu's right edge to the trigger; "left" anchors the
+  // left edge instead, so the menu doesn't spill past the screen edge when
+  // the trigger sits at the left end of a row.
+  align?: "left" | "right";
 }
 
 function downloadBlob(content: string, mime: string, filename: string) {
@@ -19,7 +23,7 @@ function downloadBlob(content: string, mime: string, filename: string) {
   URL.revokeObjectURL(url);
 }
 
-export function ExportMenu({ disabled }: ExportMenuProps) {
+export function ExportMenu({ disabled, align = "right" }: ExportMenuProps) {
   const { t } = useLanguage();
   const { books, records } = useData();
   const [open, setOpen] = useState(false);
@@ -65,7 +69,11 @@ export function ExportMenu({ disabled }: ExportMenuProps) {
         {t.export.button}
       </Button>
       {open && (
-        <div className="absolute right-0 z-20 mt-1 w-32 overflow-hidden rounded-md border border-line bg-surface shadow-card">
+        <div
+          className={`absolute z-20 mt-1 w-32 overflow-hidden rounded-md border border-line bg-surface shadow-card ${
+            align === "right" ? "right-0" : "left-0"
+          }`}
+        >
           <button onClick={exportCsv} className="block w-full px-3 py-2 text-left text-sm text-ink hover:bg-paper">{t.export.csv}</button>
           <button onClick={exportJson} className="block w-full px-3 py-2 text-left text-sm text-ink hover:bg-paper">{t.export.json}</button>
         </div>

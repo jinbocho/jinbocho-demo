@@ -26,6 +26,14 @@ export function CatalogPage() {
   const roomFilter = params.get("room") ?? "all";
   const ownerFilter = params.get("owner") ?? "all";
   const genreFilter = params.get("genre") ?? "all";
+  // "loc"/"locType"/"locName" are deep-link-only filters set by the "Mostra libri qui"
+  // links on the Locations page (bookcase/section/shelf granularity isn't a dropdown here).
+  const locFilter = params.get("loc") ?? "";
+  const locType = params.get("locType") ?? "";
+  const locName = params.get("locName") ?? "";
+  const [filtersOpen, setFiltersOpen] = useState(
+    () => roomFilter !== "all" || statusFilter !== "all" || ownerFilter !== "all" || genreFilter !== "all",
+  );
 
   useEffect(() => {
     const handle = setTimeout(() => {
@@ -80,15 +88,32 @@ export function CatalogPage() {
       if (roomFilter !== "all" && b.room_id !== roomFilter) return false;
       if (ownerFilter !== "all" && b.owner_id !== ownerFilter) return false;
       if (genreFilter !== "all" && b.record!.genre !== genreFilter) return false;
+      if (locFilter && locType === "bookcase" && b.bookcase_id !== locFilter) return false;
+      if (locFilter && locType === "section" && b.section_id !== locFilter) return false;
+      if (locFilter && locType === "shelf" && b.shelf_id !== locFilter) return false;
       return true;
     });
-  }, [joinedBooks, search, statusFilter, roomFilter, ownerFilter, genreFilter]);
+  }, [joinedBooks, search, statusFilter, roomFilter, ownerFilter, genreFilter, locFilter, locType]);
 
   function clearFilters() {
     setSearch("");
     setParams({});
   }
 
+  function clearLocationFilter() {
+    setParams((prev) => {
+      const next = new URLSearchParams(prev);
+      // "Mostra libri qui" always sets room together with loc/locType/locName,
+      // so clearing the banner should undo that whole navigation context.
+      next.delete("room");
+      next.delete("loc");
+      next.delete("locType");
+      next.delete("locName");
+      return next;
+    });
+  }
+
+  const activeFilterCount = [roomFilter !== "all", ownerFilter !== "all", genreFilter !== "all"].filter(Boolean).length;
   const hasActiveFilters = !!(search || statusFilter !== "all" || roomFilter !== "all" || ownerFilter !== "all" || genreFilter !== "all");
 
   return (
@@ -98,7 +123,7 @@ export function CatalogPage() {
         description={t.catalog.booksInLibrary(books.length)}
         actions={
           <>
-            <ExportMenu disabled={books.length === 0} />
+            <ExportMenu disabled={books.length === 0} align="left" />
             {canEdit && (
               <>
                 <Button variant="secondary" size="sm" onClick={() => navigate("/catalog/add/shelf")}>{t.books.shelfAdd.pageTitle}</Button>
@@ -108,6 +133,17 @@ export function CatalogPage() {
           </>
         }
       />
+
+      {locFilter && locName && (
+        <div className="flex items-center justify-between gap-3 rounded-lg border border-brand/30 bg-brand/5 px-4 py-2.5">
+          <span className="text-sm text-ink">
+            {t.catalog.locationFilterActive(locName)}
+          </span>
+          <button type="button" onClick={clearLocationFilter} className="shrink-0 text-sm font-medium text-brand hover:underline">
+            {t.catalog.clearLocationFilter}
+          </button>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:flex-wrap">
@@ -126,25 +162,51 @@ export function CatalogPage() {
             </Button>
           ))}
         </div>
-        <Select
-          label={t.catalog.roomLabel}
-          value={roomFilter}
-          onChange={(e) => setFilter("room", e.target.value)}
-          options={[{ value: "all", label: t.catalog.allRooms }, ...rooms.map((r) => ({ value: r.id, label: r.name }))]}
-        />
-        <Select
-          label={t.filters.ownerLabel}
-          value={ownerFilter}
-          onChange={(e) => setFilter("owner", e.target.value)}
-          options={[{ value: "all", label: t.filters.allOwners }, ...users.map((u) => ({ value: u.id, label: u.name }))]}
-        />
-        <Select
-          label={t.filters.genreLabel}
-          value={genreFilter}
-          onChange={(e) => setFilter("genre", e.target.value)}
-          options={[{ value: "all", label: t.filters.allGenres }, ...genresInLibrary.map((g) => ({ value: g, label: t.enums.genre[g] }))]}
-        />
+        <Button variant="secondary" size="sm" onClick={() => setFiltersOpen((v) => !v)}>
+          {t.catalog.filtersToggle} {filtersOpen ? "▲" : "▼"}
+          {activeFilterCount > 0 && (
+            <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand/15 px-1 text-xs font-semibold text-brand">
+              {activeFilterCount}
+            </span>
+          )}
+        </Button>
       </div>
+
+      {filtersOpen && (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <Select
+            label={t.catalog.roomLabel}
+            value={roomFilter}
+            onChange={(e) => setFilter("room", e.target.value)}
+            options={[{ value: "all", label: t.catalog.allRooms }, ...rooms.map((r) => ({ value: r.id, label: r.name }))]}
+          />
+          <Select
+            label={t.filters.ownerLabel}
+            value={ownerFilter}
+            onChange={(e) => setFilter("owner", e.target.value)}
+            options={[{ value: "all", label: t.filters.allOwners }, ...users.map((u) => ({ value: u.id, label: u.name }))]}
+          />
+          <Select
+            label={t.filters.genreLabel}
+            value={genreFilter}
+            onChange={(e) => setFilter("genre", e.target.value)}
+            options={[{ value: "all", label: t.filters.allGenres }, ...genresInLibrary.map((g) => ({ value: g, label: t.enums.genre[g] }))]}
+          />
+          {activeFilterCount > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                setFilter("room", "all");
+                setFilter("owner", "all");
+                setFilter("genre", "all");
+              }}
+              className="text-sm text-brand hover:underline sm:col-span-2 lg:col-span-3"
+            >
+              {t.catalog.removeFilters}
+            </button>
+          )}
+        </div>
+      )}
 
       {hasActiveFilters && (
         <p className="text-sm text-ink-soft">

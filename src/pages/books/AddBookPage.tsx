@@ -9,7 +9,7 @@ import { LocationPicker, type LocationValue } from "../../components/locations/L
 import { DuplicateBookDialog } from "../../components/books/DuplicateBookDialog";
 import { useData, type RecordDraft, type BookDraft } from "../../store/DataContext";
 import { useAddBookWithDuplicateCheck } from "../../store/useAddBookWithDuplicateCheck";
-import { lookupIsbn, normalizeIsbn, randomIsbnFixture } from "../../store/isbnFixtures";
+import { lookupIsbn, normalizeIsbn, randomIsbnFixture, searchBooks, type IsbnLookupResult } from "../../store/isbnFixtures";
 import { useToast } from "../../store/ToastContext";
 import { useLanguage } from "../../i18n";
 import type { Genre, ReadingStatus } from "../../data/types";
@@ -27,9 +27,13 @@ export function AddBookPage() {
   const { conflict, submit, confirmDuplicate, cancelDuplicate } = useAddBookWithDuplicateCheck();
 
   const [step, setStep] = useState<"lookup" | "form">("lookup");
-  const [tab, setTab] = useState<"type" | "scan">("type");
+  const [tab, setTab] = useState<"type" | "scan" | "search">("type");
   const [isbnInput, setIsbnInput] = useState("");
   const [notFound, setNotFound] = useState(false);
+  const [searchTitle, setSearchTitle] = useState("");
+  const [searchAuthor, setSearchAuthor] = useState("");
+  const [searchResults, setSearchResults] = useState<IsbnLookupResult[] | null>(null);
+  const [searchMissing, setSearchMissing] = useState(false);
 
   const [draft, setDraft] = useState<RecordDraft>(EMPTY_DRAFT);
   const [placement, setPlacement] = useState<LocationValue>({ room_id: null, bookcase_id: null, section_id: null, shelf_id: null });
@@ -56,6 +60,22 @@ export function AddBookPage() {
 
   function handleSimulateScan() {
     const result = randomIsbnFixture();
+    setDraft({ ...result, notes: null });
+    setStep("form");
+  }
+
+  function runSearch(e: FormEvent) {
+    e.preventDefault();
+    if (!searchTitle.trim() && !searchAuthor.trim()) {
+      setSearchMissing(true);
+      setSearchResults(null);
+      return;
+    }
+    setSearchMissing(false);
+    setSearchResults(searchBooks(searchTitle, searchAuthor));
+  }
+
+  function pickSearchResult(result: IsbnLookupResult) {
     setDraft({ ...result, notes: null });
     setStep("form");
   }
@@ -115,6 +135,12 @@ export function AddBookPage() {
             >
               {t.books.add.scanTab}
             </button>
+            <button
+              onClick={() => setTab("search")}
+              className={`px-3 py-2 text-sm font-medium transition-colors ${tab === "search" ? "border-b-2 border-brand text-brand" : "text-ink-soft hover:text-ink"}`}
+            >
+              {t.books.add.searchTab}
+            </button>
           </div>
 
           {tab === "type" ? (
@@ -130,10 +156,45 @@ export function AddBookPage() {
                 )}
               </div>
             </form>
-          ) : (
+          ) : tab === "scan" ? (
             <div className="space-y-3">
               <p className="text-sm text-ink-soft">{t.books.add.simulateScanButton}</p>
               <Button onClick={handleSimulateScan}>{t.books.add.simulateScanButton}</Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <form onSubmit={runSearch} className="space-y-3">
+                <Input label={t.books.add.searchTitleLabel} placeholder={t.books.add.searchTitlePlaceholder} value={searchTitle} onChange={(e) => setSearchTitle(e.target.value)} />
+                <Input label={t.books.add.searchAuthorLabel} placeholder={t.books.add.searchAuthorPlaceholder} value={searchAuthor} onChange={(e) => setSearchAuthor(e.target.value)} />
+                <Button type="submit">{t.books.add.searchButton}</Button>
+              </form>
+
+              {searchMissing && <p className="text-sm text-amber">{t.books.add.searchMissingQuery}</p>}
+
+              {searchResults && searchResults.length === 0 && (
+                <p className="text-sm text-ink-soft">{t.books.add.searchNoResults}</p>
+              )}
+
+              {searchResults && searchResults.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm text-ink-soft">{t.books.add.searchResultsHint}</p>
+                  <ul className="divide-y divide-line rounded-md border border-line">
+                    {searchResults.map((result) => (
+                      <li key={result.isbn} className="flex items-center justify-between gap-3 p-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-medium text-ink">{result.title}</p>
+                          <p className="truncate text-sm text-ink-soft">
+                            {[result.main_author, result.publication_year].filter(Boolean).join(" · ")}
+                          </p>
+                        </div>
+                        <Button type="button" size="sm" variant="secondary" onClick={() => pickSearchResult(result)}>
+                          {t.books.add.searchSelect}
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
 

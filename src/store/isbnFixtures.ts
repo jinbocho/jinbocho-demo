@@ -69,3 +69,15 @@ export function randomIsbnFixture(excludeIsbns: string[] = []): IsbnLookupResult
   const list = pool.length > 0 ? pool : ISBN_FIXTURES;
   return list[Math.floor(Math.random() * list.length)];
 }
+
+// Simula la ricerca per titolo/autore offerta dal catalogo esterno (Open Library/Google Books)
+// nel servizio reale: filtra lo stesso pool di fixture ISBN per sostanza demo-equivalente.
+export function searchBooks(title?: string, author?: string): IsbnLookupResult[] {
+  const t = title?.trim().toLowerCase() ?? "";
+  const a = author?.trim().toLowerCase() ?? "";
+  return ISBN_FIXTURES.filter((entry) => {
+    if (t && !entry.title.toLowerCase().includes(t)) return false;
+    if (a && !(entry.main_author ?? "").toLowerCase().includes(a)) return false;
+    return true;
+  });
+}

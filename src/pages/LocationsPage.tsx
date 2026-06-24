@@ -13,6 +13,40 @@ import { useLanguage } from "../i18n";
 
 type DeleteTarget = { kind: "room" | "bookcase" | "section" | "shelf"; id: string } | null;
 
+// Builds a "/catalog?..." link that both filters (room is a real filter the
+// catalog page understands; loc/locType/locName is the deeper-than-room
+// filter) and carries the full breadcrumb for display on the catalog page.
+function booksLink(opts: { room: string; loc: string; locType: string; locName: string }): string {
+  const qs = new URLSearchParams({ room: opts.room, loc: opts.loc, locType: opts.locType, locName: opts.locName });
+  return `/catalog?${qs.toString()}`;
+}
+
+function BulkAddControl({
+  quantityLabel,
+  buttonLabel,
+  onAdd,
+}: {
+  quantityLabel: string;
+  buttonLabel: string;
+  onAdd: (count: number) => void;
+}) {
+  const [count, setCount] = useState(1);
+  return (
+    <div className="flex items-center gap-1.5">
+      <input
+        type="number"
+        min={1}
+        max={20}
+        value={count}
+        onChange={(e) => setCount(Math.min(20, Math.max(1, Number(e.target.value) || 1)))}
+        aria-label={quantityLabel}
+        className="h-8 w-12 rounded-lg border border-line bg-surface px-1 text-center text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand/40"
+      />
+      <Button variant="ghost" size="sm" onClick={() => onAdd(count)}>{buttonLabel} ×{count}</Button>
+    </div>
+  );
+}
+
 export function LocationsPage() {
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -98,6 +132,17 @@ export function LocationsPage() {
     shelf: t.locations.deleteShelfConfirm,
   };
 
+  const deleteTargetBookCount = (() => {
+    if (!deleteTarget) return 0;
+    const countMap = {
+      room: bookCountByRoom,
+      bookcase: bookCountByBookcase,
+      section: bookCountBySection,
+      shelf: bookCountByShelf,
+    }[deleteTarget.kind];
+    return countMap[deleteTarget.id] ?? 0;
+  })();
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -127,6 +172,12 @@ export function LocationsPage() {
                   </button>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-ink-soft">{t.locations.booksCount(bookCountByRoom[room.id] ?? 0)}</span>
+                    <button
+                      onClick={() => navigate(booksLink({ room: room.id, loc: room.id, locType: "room", locName: room.name }))}
+                      className="text-xs text-brand hover:underline whitespace-nowrap"
+                    >
+                      {t.locations.viewBooksLink}
+                    </button>
                     {canEdit && (
                       <>
                         <IconButton label={t.common.edit} onClick={() => setRoomModal({ id: room.id, name: room.name, description: room.description ?? "" })}>✎</IconButton>
@@ -152,6 +203,21 @@ export function LocationsPage() {
                             </button>
                             <div className="flex items-center gap-2">
                               <span className="text-xs text-ink-soft">{t.locations.booksCount(bookCountByBookcase[bc.id] ?? 0)}</span>
+                              <button
+                                onClick={() =>
+                                  navigate(
+                                    booksLink({
+                                      room: room.id,
+                                      loc: bc.id,
+                                      locType: "bookcase",
+                                      locName: `${room.name} › ${bc.name}`,
+                                    }),
+                                  )
+                                }
+                                className="text-xs text-brand hover:underline whitespace-nowrap"
+                              >
+                                {t.locations.viewBooksLink}
+                              </button>
                               <Button variant="ghost" size="sm" onClick={() => navigate(`/map/${bc.id}`)}>{t.locations.viewMap}</Button>
                               {canEdit && (
                                 <>
@@ -177,6 +243,21 @@ export function LocationsPage() {
                                       </button>
                                       <div className="flex items-center gap-2">
                                         <span className="text-xs text-stone">{t.locations.booksCount(bookCountBySection[section.id] ?? 0)}</span>
+                                        <button
+                                          onClick={() =>
+                                            navigate(
+                                              booksLink({
+                                                room: room.id,
+                                                loc: section.id,
+                                                locType: "section",
+                                                locName: `${room.name} › ${bc.name} › ${section.label ?? t.locations.sectionLabel(section.section_index)}`,
+                                              }),
+                                            )
+                                          }
+                                          className="text-xs text-brand hover:underline whitespace-nowrap"
+                                        >
+                                          {t.locations.viewBooksLink}
+                                        </button>
                                         {canEdit && (
                                           <>
                                             <IconButton label={t.common.edit} onClick={() => setSectionModal({ id: section.id, bookcaseId: section.bookcase_id, label: section.label ?? "" })}>✎</IconButton>
@@ -197,6 +278,21 @@ export function LocationsPage() {
                                             </div>
                                             <div className="flex items-center gap-2">
                                               <span className="text-xs text-stone">{t.locations.booksCount(bookCountByShelf[shelf.id] ?? 0)}</span>
+                                              <button
+                                                onClick={() =>
+                                                  navigate(
+                                                    booksLink({
+                                                      room: room.id,
+                                                      loc: shelf.id,
+                                                      locType: "shelf",
+                                                      locName: `${room.name} › ${bc.name} › ${section.label ?? t.locations.sectionLabel(section.section_index)} › ${t.locations.shelfLabel(shelf.shelf_index)}`,
+                                                    }),
+                                                  )
+                                                }
+                                                className="text-xs text-brand hover:underline whitespace-nowrap"
+                                              >
+                                                {t.locations.viewBooksLink}
+                                              </button>
                                               {canEdit && (
                                                 <>
                                                   <IconButton label={t.common.edit} onClick={() => setShelfModal({ id: shelf.id, sectionId: shelf.section_id, notes: shelf.notes ?? "" })}>✎</IconButton>
@@ -207,7 +303,16 @@ export function LocationsPage() {
                                           </div>
                                         ))}
                                         {canEdit && (
-                                          <Button variant="ghost" size="sm" onClick={() => setShelfModal({ id: null, sectionId: section.id, notes: "" })}>{t.locations.addShelf}</Button>
+                                          <div className="flex flex-wrap items-center gap-3">
+                                            <Button variant="ghost" size="sm" onClick={() => setShelfModal({ id: null, sectionId: section.id, notes: "" })}>{t.locations.addShelf}</Button>
+                                            <BulkAddControl
+                                              quantityLabel={t.locations.shelfCountLabel}
+                                              buttonLabel={t.locations.addShelf}
+                                              onAdd={(n) => {
+                                                for (let i = 0; i < n; i++) addShelf({ section_id: section.id, notes: null });
+                                              }}
+                                            />
+                                          </div>
                                         )}
                                       </div>
                                     )}
@@ -215,8 +320,15 @@ export function LocationsPage() {
                                 );
                               })}
                               {canEdit && (
-                                <div className="px-5 py-2 pl-16">
+                                <div className="flex flex-wrap items-center gap-3 px-5 py-2 pl-16">
                                   <Button variant="ghost" size="sm" onClick={() => setSectionModal({ id: null, bookcaseId: bc.id, label: "" })}>{t.locations.addSection}</Button>
+                                  <BulkAddControl
+                                    quantityLabel={t.locations.sectionCountLabel}
+                                    buttonLabel={t.locations.addSection}
+                                    onAdd={(n) => {
+                                      for (let i = 0; i < n; i++) addSection({ bookcase_id: bc.id, label: null });
+                                    }}
+                                  />
                                 </div>
                               )}
                             </div>
@@ -286,7 +398,7 @@ export function LocationsPage() {
       <ConfirmDialog
         open={!!deleteTarget}
         title={t.common.delete}
-        message={deleteTarget ? deleteMessages[deleteTarget.kind] : ""}
+        message={deleteTarget ? `${deleteMessages[deleteTarget.kind]}${t.locations.booksWarning(deleteTargetBookCount)}` : ""}
         destructive
         confirmLabel={t.common.delete}
         onConfirm={confirmDelete}
