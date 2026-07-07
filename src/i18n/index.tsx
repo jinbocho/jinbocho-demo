@@ -1,8 +1,11 @@
 import { createContext, useContext, useState } from "react";
 import type { Translations } from "./translations";
-import { it, en } from "./translations";
+import { it, en, es, fr } from "./translations";
 
-export type Language = "it" | "en";
+export type Language = "it" | "en" | "es" | "fr";
+
+const TRANSLATIONS: Record<Language, Translations> = { it, en, es, fr };
+const VALID_LANGUAGES: Language[] = ["it", "en", "es", "fr"];
 
 interface LanguageContextValue {
   lang: Language;
@@ -20,7 +23,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLang] = useState<Language>(() => {
     try {
       const stored = localStorage.getItem("jinbocho-lang");
-      return stored === "en" ? "en" : "it";
+      return VALID_LANGUAGES.includes(stored as Language) ? (stored as Language) : "it";
     } catch {
       return "it";
     }
@@ -35,7 +38,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <LanguageContext.Provider
-      value={{ lang, setLang: handleSetLang, t: lang === "en" ? en : it }}
+      value={{ lang, setLang: handleSetLang, t: TRANSLATIONS[lang] }}
     >
       {children}
     </LanguageContext.Provider>

@@ -13,12 +13,12 @@ import { useLanguage } from "../i18n";
 
 type DeleteTarget = { kind: "room" | "bookcase" | "section" | "shelf"; id: string } | null;
 
-// Builds a "/catalog?..." link that both filters (room is a real filter the
+// Builds a "/books?..." link that both filters (room is a real filter the
 // catalog page understands; loc/locType/locName is the deeper-than-room
 // filter) and carries the full breadcrumb for display on the catalog page.
 function booksLink(opts: { room: string; loc: string; locType: string; locName: string }): string {
   const qs = new URLSearchParams({ room: opts.room, loc: opts.loc, locType: opts.locType, locName: opts.locName });
-  return `/catalog?${qs.toString()}`;
+  return `/books?${qs.toString()}`;
 }
 
 function BulkAddControl({

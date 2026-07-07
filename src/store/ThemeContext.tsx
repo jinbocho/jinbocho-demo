@@ -25,13 +25,13 @@ function resolveDark(mode: ThemeMode): boolean {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [themeName, setThemeName] = useState<ThemeName>(() => readStored(THEME_NAME_KEY, "akabeni"));
+  const [themeName, setThemeName] = useState<ThemeName>(() => readStored(THEME_NAME_KEY, "pergamena"));
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => readStored(THEME_MODE_KEY, "light"));
 
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove("theme-pergamena", "theme-sumi");
-    if (themeName === "pergamena") root.classList.add("theme-pergamena");
+    root.classList.remove("theme-akabeni", "theme-sumi");
+    if (themeName === "akabeni") root.classList.add("theme-akabeni");
     if (themeName === "sumi") root.classList.add("theme-sumi");
     window.localStorage.setItem(THEME_NAME_KEY, themeName);
   }, [themeName]);

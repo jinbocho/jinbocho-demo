@@ -10,50 +10,16 @@
   PostCSS/Tailwind reorders rules inside layers (same approach as jinbocho-fe).
 
   Specificity ladder:
-    :root                  → 0,1,0  (Akabeni light — default/fallback)
-    html.dark              → 0,1,1  (Akabeni dark)
-    html.theme-pergamena      → 0,1,1  (Pergamena light)
-    html.theme-pergamena.dark → 0,2,1  (Pergamena dark)
-    html.theme-sumi          → 0,1,1  (Sumi light)
-    html.theme-sumi.dark     → 0,2,1  (Sumi dark)
+    :root                   → 0,1,0  (Pergamena light — always the fallback)
+    html.dark               → 0,1,1  (Pergamena dark)
+    html.theme-akabeni      → 0,1,1  (Akabeni light)
+    html.theme-akabeni.dark → 0,2,1  (Akabeni dark)
+    html.theme-sumi         → 0,1,1  (Sumi light)
+    html.theme-sumi.dark    → 0,2,1  (Sumi dark)
 */
 
-/* ─── Akabeni (赤紅) — light (default) ─────────────────────────────────── */
+/* ─── Pergamena — light (default) ──────────────────────────────────────── */
 :root {
-  --c-paper: 248 247 244;
-  --c-surface: 255 255 255;
-  --c-ink: 17 17 17;
-  --c-ink-soft: 119 119 119;
-  --c-brand: 188 0 45;
-  --c-brand-soft: 212 0 58;
-  --c-sage: 46 125 50;
-  --c-amber: 199 119 0;
-  --c-stone: 136 136 136;
-  --c-line: 229 227 222;
-  --c-danger: 188 0 45;
-  --shadow-card: 0 1px 3px rgb(17 17 17 / 0.08);
-  color-scheme: light;
-}
-
-/* ─── Akabeni (赤紅) — dark ─────────────────────────────────────────────── */
-html.dark {
-  --c-paper: 26 26 26;
-  --c-surface: 36 36 36;
-  --c-ink: 240 238 235;
-  --c-ink-soft: 154 154 154;
-  --c-brand: 255 77 109;
-  --c-brand-soft: 255 143 163;
-  --c-sage: 128 207 169;
-  --c-amber: 255 204 68;
-  --c-stone: 136 136 136;
-  --c-line: 51 51 51;
-  --c-danger: 255 77 109;
-  --shadow-card: 0 1px 3px rgb(0 0 0 / 0.50);
-  color-scheme: dark;
-}
-
-/* ─── Pergamena — light ─────────────────────────────────────────────────── */
-html.theme-pergamena {
   --c-paper: 246 241 232;
   --c-surface: 253 249 243;
   --c-ink: 42 31 18;
@@ -70,7 +36,7 @@ html.theme-pergamena {
 }
 
 /* ─── Pergamena — dark ──────────────────────────────────────────────────── */
-html.theme-pergamena.dark {
+html.dark {
   --c-paper: 30 25 18;
   --c-surface: 44 36 24;
   --c-ink: 237 229 216;
@@ -82,6 +48,40 @@ html.theme-pergamena.dark {
   --c-stone: 154 140 124;
   --c-line: 60 48 34;
   --c-danger: 212 100 80;
+  --shadow-card: 0 1px 3px rgb(0 0 0 / 0.50);
+  color-scheme: dark;
+}
+
+/* ─── Akabeni (赤紅) — light ────────────────────────────────────────────── */
+html.theme-akabeni {
+  --c-paper: 248 247 244;
+  --c-surface: 255 255 255;
+  --c-ink: 17 17 17;
+  --c-ink-soft: 119 119 119;
+  --c-brand: 188 0 45;
+  --c-brand-soft: 212 0 58;
+  --c-sage: 46 125 50;
+  --c-amber: 199 119 0;
+  --c-stone: 136 136 136;
+  --c-line: 229 227 222;
+  --c-danger: 188 0 45;
+  --shadow-card: 0 1px 3px rgb(17 17 17 / 0.08);
+  color-scheme: light;
+}
+
+/* ─── Akabeni (赤紅) — dark ─────────────────────────────────────────────── */
+html.theme-akabeni.dark {
+  --c-paper: 26 26 26;
+  --c-surface: 36 36 36;
+  --c-ink: 240 238 235;
+  --c-ink-soft: 154 154 154;
+  --c-brand: 255 77 109;
+  --c-brand-soft: 255 143 163;
+  --c-sage: 128 207 169;
+  --c-amber: 255 204 68;
+  --c-stone: 136 136 136;
+  --c-line: 51 51 51;
+  --c-danger: 255 77 109;
   --shadow-card: 0 1px 3px rgb(0 0 0 / 0.50);
   color-scheme: dark;
 }

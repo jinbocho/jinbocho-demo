@@ -1,6 +1,7 @@
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: "sm" | "md";
+  loading?: boolean;
   children: React.ReactNode;
 }
 
@@ -19,15 +20,21 @@ const SIZE_STYLES = {
 export function Button({
   variant = "primary",
   size = "md",
+  loading = false,
+  disabled,
   children,
   className = "",
   ...props
 }: ButtonProps) {
   return (
     <button
+      disabled={disabled || loading}
       className={`inline-flex items-center gap-1.5 rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 disabled:opacity-50 disabled:cursor-not-allowed ${VARIANT_STYLES[variant]} ${SIZE_STYLES[size]} ${className}`}
       {...props}
     >
+      {loading && (
+        <span aria-hidden="true" className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+      )}
       {children}
     </button>
   );

@@ -5,6 +5,7 @@ import { Badge } from "../components/ui/Badge";
 import { BookCover } from "../components/ui/BookCover";
 import { PageHeader } from "../components/ui/PageHeader";
 import { Avatar } from "../components/ui/Avatar";
+import { AiPickCard } from "../components/books/AiPickCard";
 import { useData } from "../store/DataContext";
 import { useLanguage } from "../i18n";
 
@@ -220,6 +221,8 @@ export function DashboardPage() {
             <p className="text-sm text-ink-soft">{t.dashboard.noNextRead}</p>
           )}
         </Card>
+
+        <AiPickCard />
 
         {/* Unread by anyone */}
         <Card className="min-w-0 p-5">

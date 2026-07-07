@@ -7,6 +7,7 @@ import { Input } from "../../components/ui/Input";
 import { Textarea } from "../../components/ui/Textarea";
 import { ExportMenu } from "../../components/books/ExportMenu";
 import { ImportBackupDialog } from "../../components/settings/ImportBackupDialog";
+import { GoodreadsImportDialog } from "../../components/settings/GoodreadsImportDialog";
 import { DeleteAccountDialog } from "../../components/settings/DeleteAccountDialog";
 import { useData } from "../../store/DataContext";
 import { useAuth } from "../../store/AuthContext";
@@ -116,9 +117,11 @@ export function SettingsPage() {
 
       <Card className="space-y-3 p-5">
         <h2 className="font-display text-base font-semibold text-ink">{t.settings.languageTitle}</h2>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button size="sm" variant={lang === "it" ? "primary" : "secondary"} onClick={() => setLang("it")}>Italiano</Button>
           <Button size="sm" variant={lang === "en" ? "primary" : "secondary"} onClick={() => setLang("en")}>English</Button>
+          <Button size="sm" variant={lang === "es" ? "primary" : "secondary"} onClick={() => setLang("es")}>Español</Button>
+          <Button size="sm" variant={lang === "fr" ? "primary" : "secondary"} onClick={() => setLang("fr")}>Français</Button>
         </div>
       </Card>
 
@@ -127,6 +130,10 @@ export function SettingsPage() {
         <div>
           <p className="mb-2 text-sm text-ink-soft">{t.settings.exportLibraryLabel}</p>
           <ExportMenu />
+        </div>
+        <div>
+          <p className="mb-2 text-sm text-ink-soft">{t.settings.goodreadsImportTitle}</p>
+          <GoodreadsImportDialog />
         </div>
         {isAdmin && (
           <div>

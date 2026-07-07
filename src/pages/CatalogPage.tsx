@@ -126,8 +126,8 @@ export function CatalogPage() {
             <ExportMenu disabled={books.length === 0} align="left" />
             {canEdit && (
               <>
-                <Button variant="secondary" size="sm" onClick={() => navigate("/catalog/add/shelf")}>{t.books.shelfAdd.pageTitle}</Button>
-                <Button size="sm" onClick={() => navigate("/catalog/add")}>{t.books.add.pageTitle}</Button>
+                <Button variant="secondary" size="sm" onClick={() => navigate("/books/add/shelf")}>{t.books.shelfAdd.pageTitle}</Button>
+                <Button size="sm" onClick={() => navigate("/books/add")}>{t.books.add.pageTitle}</Button>
               </>
             )}
           </>

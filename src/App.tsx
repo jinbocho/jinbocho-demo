@@ -15,13 +15,21 @@ import { CatalogPage } from "./pages/CatalogPage";
 import { BookDetailPage } from "./pages/BookDetailPage";
 import { AddBookPage } from "./pages/books/AddBookPage";
 import { ShelfAddPage } from "./pages/books/ShelfAddPage";
+import { ShelfScanPage } from "./pages/books/ShelfScanPage";
+import { ShelfAuditPage } from "./pages/books/ShelfAuditPage";
 import { LocationsPage } from "./pages/LocationsPage";
 import { BookcaseMapPage } from "./pages/BookcaseMapPage";
 import { LoansPage } from "./pages/LoansPage";
+import { WishlistPage } from "./pages/wishlist/WishlistPage";
+import { AddWishlistPage } from "./pages/wishlist/AddWishlistPage";
 import { StatsPage } from "./pages/StatsPage";
 import { StatsBookListPage } from "./pages/stats/StatsBookListPage";
 import { UsersPage } from "./pages/users/UsersPage";
+import { MemberProfilePage } from "./pages/users/MemberProfilePage";
 import { SettingsPage } from "./pages/settings/SettingsPage";
+import { PrivacyPolicyPage } from "./pages/legal/PrivacyPolicyPage";
+import { TermsPage } from "./pages/legal/TermsPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
 
 function ProtectedShell({ children }: { children: React.ReactNode }) {
   return (
@@ -44,28 +52,42 @@ export function App() {
                   <Route path="/register" element={<RegisterPage />} />
                   <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                   <Route path="/reset-password" element={<ResetPasswordPage />} />
+                  <Route path="/legal/privacy-policy" element={<PrivacyPolicyPage />} />
+                  <Route path="/legal/terms" element={<TermsPage />} />
 
                   <Route path="/" element={<ProtectedShell><DashboardPage /></ProtectedShell>} />
-                  <Route path="/catalog" element={<ProtectedShell><CatalogPage /></ProtectedShell>} />
+                  <Route path="/books" element={<ProtectedShell><CatalogPage /></ProtectedShell>} />
                   <Route
-                    path="/catalog/add"
+                    path="/books/add"
                     element={<ProtectedShell><RequireRole roles={["admin", "editor"]}><AddBookPage /></RequireRole></ProtectedShell>}
                   />
                   <Route
-                    path="/catalog/add/shelf"
+                    path="/books/add/shelf"
                     element={<ProtectedShell><RequireRole roles={["admin", "editor"]}><ShelfAddPage /></RequireRole></ProtectedShell>}
+                  />
+                  <Route
+                    path="/books/add/shelf-scan"
+                    element={<ProtectedShell><RequireRole roles={["admin", "editor"]}><ShelfScanPage /></RequireRole></ProtectedShell>}
+                  />
+                  <Route
+                    path="/books/audit/shelf"
+                    element={<ProtectedShell><RequireRole roles={["admin", "editor"]}><ShelfAuditPage /></RequireRole></ProtectedShell>}
                   />
                   <Route path="/books/:id" element={<ProtectedShell><BookDetailPage /></ProtectedShell>} />
                   <Route path="/locations" element={<ProtectedShell><LocationsPage /></ProtectedShell>} />
                   <Route path="/map/:bookcaseId" element={<ProtectedShell><BookcaseMapPage /></ProtectedShell>} />
                   <Route path="/loans" element={<ProtectedShell><LoansPage /></ProtectedShell>} />
+                  <Route path="/wishlist" element={<ProtectedShell><WishlistPage /></ProtectedShell>} />
+                  <Route path="/wishlist/add" element={<ProtectedShell><AddWishlistPage /></ProtectedShell>} />
                   <Route path="/stats" element={<ProtectedShell><StatsPage /></ProtectedShell>} />
                   <Route path="/stats/books" element={<ProtectedShell><StatsBookListPage /></ProtectedShell>} />
                   <Route
                     path="/users"
                     element={<ProtectedShell><RequireRole roles={["admin"]}><UsersPage /></RequireRole></ProtectedShell>}
                   />
+                  <Route path="/users/:userId" element={<ProtectedShell><MemberProfilePage /></ProtectedShell>} />
                   <Route path="/settings" element={<ProtectedShell><SettingsPage /></ProtectedShell>} />
+                  <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </BrowserRouter>
             </LanguageProvider>

@@ -47,6 +47,7 @@ export interface User {
   avatar_color: string;
   annual_reading_goal: number | null;
   is_active: boolean;
+  joined_at: string;
 }
 
 export interface Room {
@@ -139,4 +140,36 @@ export interface Incipit {
   record_id: string;
   text: string | null;
   source: IncipitSource | null;
+}
+
+export interface BookRating {
+  id: string;
+  book_id: string;
+  user_id: string;
+  rating: number;
+  review: string | null;
+  created_at: string;
+}
+
+export interface LibraryRatingStats {
+  average: number | null;
+  total: number;
+  distribution: Record<number, number>;
+}
+
+export interface WishlistItem {
+  id: string;
+  user_id: string;
+  priority: number | null;
+  notes: string | null;
+  created_at: string;
+  record: {
+    title: string;
+    main_author: string | null;
+    isbn: string | null;
+    publisher: string | null;
+    publication_year: number | null;
+    genre: Genre | null;
+    cover_url: string | null;
+  };
 }

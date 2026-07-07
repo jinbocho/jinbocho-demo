@@ -7,9 +7,12 @@ interface ModalProps {
   title: string;
   children: ReactNode;
   footer?: ReactNode;
+  size?: "md" | "xl";
 }
 
-export function Modal({ open, onClose, title, children, footer }: ModalProps) {
+const SIZE_STYLES = { md: "max-w-lg", xl: "max-w-3xl" };
+
+export function Modal({ open, onClose, title, children, footer, size = "md" }: ModalProps) {
   useEffect(() => {
     if (!open) return;
     function onKeyDown(e: KeyboardEvent) {
@@ -28,7 +31,7 @@ export function Modal({ open, onClose, title, children, footer }: ModalProps) {
         aria-modal="true"
         aria-label={title}
         onClick={(e) => e.stopPropagation()}
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-surface p-5 shadow-card"
+        className={`max-h-[90vh] w-full overflow-y-auto rounded-lg bg-surface p-5 shadow-card ${SIZE_STYLES[size]}`}
       >
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="font-display text-lg font-semibold text-ink">{title}</h2>

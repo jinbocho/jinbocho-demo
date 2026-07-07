@@ -1,12 +1,14 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import type {
-  BibliographicRecord, BookHistory, BookLoan, BookRead, Bookcase, Family, Genre, Incipit,
-  OwnedBook, ReadingStatus, Room, Section, Shelf, User, UserRole,
+  BibliographicRecord, BookHistory, BookLoan, BookRating, BookRead, Bookcase, Family, Genre, Incipit,
+  OwnedBook, ReadingStatus, Room, Section, Shelf, User, UserRole, WishlistItem,
 } from "../data/types";
 import { RECORDS, OWNED_BOOKS } from "../data/books";
 import { ROOMS, BOOKCASES, SECTIONS, SHELVES } from "../data/locations";
 import { LOANS } from "../data/loans";
 import { READS } from "../data/reads";
+import { RATINGS } from "../data/ratings";
+import { WISHLIST } from "../data/wishlist";
 import { USERS } from "../data/users";
 import { DEFAULT_FAMILY } from "../data/family";
 import { INCIPITS, BOOK_HISTORY } from "../data/extras";
@@ -24,6 +26,8 @@ export interface DataSnapshot {
   reads: BookRead[];
   history: BookHistory[];
   incipits: Incipit[];
+  ratings: BookRating[];
+  wishlist: WishlistItem[];
 }
 
 function defaultSnapshot(): DataSnapshot {
@@ -40,6 +44,8 @@ function defaultSnapshot(): DataSnapshot {
     reads: READS,
     history: BOOK_HISTORY,
     incipits: INCIPITS,
+    ratings: RATINGS,
+    wishlist: WISHLIST,
   };
 }
 
@@ -57,6 +63,8 @@ function emptySnapshot(familyName: string, admin: User): DataSnapshot {
     reads: [],
     history: [],
     incipits: [],
+    ratings: [],
+    wishlist: [],
   };
 }
 
@@ -150,6 +158,11 @@ interface DataContextValue extends DataSnapshot {
   deleteUser: (id: string) => void;
   updateFamily: (patch: Partial<Pick<Family, "name" | "description">>) => void;
   setIncipit: (recordId: string, text: string, source: Incipit["source"]) => void;
+  addRating: (bookId: string, userId: string, rating: number, review: string | null) => BookRating;
+  updateRating: (id: string, patch: { rating: number; review: string | null }) => void;
+  deleteRating: (id: string) => void;
+  addWishlistItem: (userId: string, record: WishlistItem["record"], priority: number | null, notes: string | null) => WishlistItem;
+  removeWishlistItem: (id: string) => void;
   resetToSeed: () => void;
   wipeFamily: (familyName: string, admin: { name: string; email: string }) => User;
   replaceSnapshot: (snapshot: DataSnapshot) => void;
@@ -350,7 +363,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       },
 
       addUser(input) {
-        const user: User = { id: newId("u"), name: input.name, email: input.email, role: input.role, avatar_color: "#bc002d", annual_reading_goal: null, is_active: true };
+        const user: User = { id: newId("u"), name: input.name, email: input.email, role: input.role, avatar_color: "#bc002d", annual_reading_goal: null, is_active: true, joined_at: new Date().toISOString() };
         setSnapshot((s) => ({ ...s, users: [...s.users, user] }));
         return user;
       },
@@ -383,12 +396,36 @@ export function DataProvider({ children }: { children: ReactNode }) {
         });
       },
 
+      addRating(bookId, userId, rating, review) {
+        const created: BookRating = { id: newId("rt"), book_id: bookId, user_id: userId, rating, review, created_at: new Date().toISOString() };
+        setSnapshot((s) => ({ ...s, ratings: [...s.ratings, created] }));
+        return created;
+      },
+
+      updateRating(id, patch) {
+        setSnapshot((s) => ({ ...s, ratings: s.ratings.map((r) => (r.id === id ? { ...r, ...patch } : r)) }));
+      },
+
+      deleteRating(id) {
+        setSnapshot((s) => ({ ...s, ratings: s.ratings.filter((r) => r.id !== id) }));
+      },
+
+      addWishlistItem(userId, record, priority, notes) {
+        const created: WishlistItem = { id: newId("w"), user_id: userId, priority, notes, created_at: new Date().toISOString(), record };
+        setSnapshot((s) => ({ ...s, wishlist: [...s.wishlist, created] }));
+        return created;
+      },
+
+      removeWishlistItem(id) {
+        setSnapshot((s) => ({ ...s, wishlist: s.wishlist.filter((w) => w.id !== id) }));
+      },
+
       resetToSeed() {
         setSnapshot(defaultSnapshot());
       },
 
       wipeFamily(familyName, admin) {
-        const adminUser: User = { id: newId("u"), name: admin.name, email: admin.email, role: "admin", avatar_color: "#bc002d", annual_reading_goal: null, is_active: true };
+        const adminUser: User = { id: newId("u"), name: admin.name, email: admin.email, role: "admin", avatar_color: "#bc002d", annual_reading_goal: null, is_active: true, joined_at: new Date().toISOString() };
         setSnapshot(emptySnapshot(familyName, adminUser));
         return adminUser;
       },

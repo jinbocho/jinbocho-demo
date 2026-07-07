@@ -95,7 +95,7 @@ export function ShelfAddPage() {
 
   function handleDone() {
     if (placement.bookcase_id) navigate(`/map/${placement.bookcase_id}`);
-    else navigate("/catalog");
+    else navigate("/books");
   }
 
   const genreOptions = (Object.keys(t.enums.genre) as Genre[]).map((g) => ({ value: g, label: t.enums.genre[g] }));
@@ -116,7 +116,7 @@ export function ShelfAddPage() {
             options={users.map((u) => ({ value: u.id, label: u.name }))}
           />
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => navigate("/catalog")}>{t.common.cancel}</Button>
+            <Button variant="secondary" onClick={() => navigate("/books")}>{t.common.cancel}</Button>
             <Button disabled={!placement.shelf_id} onClick={() => setPhase("scan")}>{t.books.shelfAdd.startButton}</Button>
           </div>
         </Card>

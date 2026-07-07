@@ -11,6 +11,9 @@ import { Input } from "../components/ui/Input";
 import { Select } from "../components/ui/Select";
 import { Textarea } from "../components/ui/Textarea";
 import { LocationPicker, type LocationValue } from "../components/locations/LocationPicker";
+import { BookRatingsList } from "../components/books/BookRatingsList";
+import { LibraryRatingSummary } from "../components/books/LibraryRatingSummary";
+import { BookRatingForm } from "../components/books/BookRatingForm";
 import { useData, type RecordDraft } from "../store/DataContext";
 import { useAuth } from "../store/AuthContext";
 import { useToast } from "../store/ToastContext";
@@ -31,14 +34,33 @@ const AI_INCIPIT_POOL = [
   "Il viaggio cominciò senza una meta precisa, ma con la certezza che nulla sarebbe stato come prima.",
 ];
 
+const GENRE_TAG_SUGGESTIONS: Partial<Record<Genre, string[]>> = {
+  fiction: ["narrativa", "personaggi-memorabili"],
+  fantasy: ["saga", "mondo-immaginario"],
+  science_fiction: ["distopia", "futuro"],
+  mystery_thriller: ["suspense", "colpo-di-scena"],
+  romance: ["sentimentale"],
+  horror: ["inquietante"],
+  historical: ["ambientazione-storica"],
+  biography_memoir: ["biografia"],
+  history: ["saggistica-storica"],
+  science: ["divulgazione"],
+  philosophy: ["riflessivo"],
+  self_help: ["crescita-personale"],
+  poetry: ["poesia"],
+  comics: ["illustrato"],
+  children: ["per-bambini"],
+  young_adult: ["young-adult"],
+};
+
 export function BookDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useLanguage();
   const toast = useToast();
-  const { hasRole } = useAuth();
+  const { hasRole, currentUser } = useAuth();
   const {
-    books, records, users, loans, reads, history, incipits,
+    books, records, users, loans, reads, history, incipits, ratings,
     rooms, bookcases, sections, shelves,
     updateRecord, updateBook, moveBook, deleteBook,
     markRead, unmarkRead, lendBook, returnBook, setIncipit,
@@ -49,9 +71,12 @@ export function BookDetailPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [ratingFormOpen, setRatingFormOpen] = useState(false);
   const [editingPresentation, setEditingPresentation] = useState(false);
   const [presentationDraft, setPresentationDraft] = useState("");
   const [generatingAi, setGeneratingAi] = useState(false);
+  const [suggestingTags, setSuggestingTags] = useState(false);
+  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
   const [borrowerName, setBorrowerName] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [editDraft, setEditDraft] = useState<RecordDraft>(EMPTY_RECORD_DRAFT);
@@ -76,7 +101,7 @@ export function BookDetailPage() {
       <div className="flex flex-col items-center justify-center py-20 text-center px-4">
         <span className="text-5xl mb-4">📕</span>
         <p className="text-ink font-medium text-lg">{t.bookDetail.notFound}</p>
-        <Button variant="secondary" className="mt-4" onClick={() => navigate("/catalog")}>{t.bookDetail.backToCatalog}</Button>
+        <Button variant="secondary" className="mt-4" onClick={() => navigate("/books")}>{t.bookDetail.backToCatalog}</Button>
       </div>
     );
   }
@@ -88,7 +113,7 @@ export function BookDetailPage() {
       <div className="flex flex-col items-center justify-center py-20 text-center px-4">
         <span className="text-5xl mb-4">📕</span>
         <p className="text-ink font-medium text-lg">{t.bookDetail.recordNotFound}</p>
-        <Button variant="secondary" className="mt-4" onClick={() => navigate("/catalog")}>{t.bookDetail.backToCatalog}</Button>
+        <Button variant="secondary" className="mt-4" onClick={() => navigate("/books")}>{t.bookDetail.backToCatalog}</Button>
       </div>
     );
   }
@@ -101,6 +126,16 @@ export function BookDetailPage() {
   const readerUserIds = new Set(bookReads.map((r) => r.user_id));
   const bookHistory = history.filter((h) => h.book_id === book.id).sort((a, b) => b.created_at.localeCompare(a.created_at));
   const incipit = incipits.find((i) => i.record_id === record.id) ?? null;
+  const bookRatings = ratings.filter((r) => r.book_id === book.id).sort((a, b) => b.created_at.localeCompare(a.created_at));
+  const ratingStats = {
+    total: bookRatings.length,
+    average: bookRatings.length ? bookRatings.reduce((sum, r) => sum + r.rating, 0) / bookRatings.length : null,
+    distribution: bookRatings.reduce<Record<number, number>>((acc, r) => {
+      acc[r.rating] = (acc[r.rating] ?? 0) + 1;
+      return acc;
+    }, {}),
+  };
+  const hasOwnRating = bookRatings.some((r) => r.user_id === currentUser?.id);
 
   const room = book.room_id ? rooms.find((r) => r.id === book.room_id) : null;
   const bookcase = book.bookcase_id ? bookcases.find((b2) => b2.id === book.bookcase_id) : null;
@@ -117,7 +152,25 @@ export function BookDetailPage() {
     setEditSource(b.source ?? "");
     setEditOwnerId(b.owner_id ?? "");
     setEditNotes(b.notes ?? "");
+    setSuggestedTags([]);
     setEditOpen(true);
+  }
+
+  function handleSuggestTags() {
+    setSuggestingTags(true);
+    setTimeout(() => {
+      const pool = (editDraft.genre && GENRE_TAG_SUGGESTIONS[editDraft.genre]) || ["da-leggere-insieme"];
+      const existing = editTags.split(",").map((tg) => tg.trim().toLowerCase()).filter(Boolean);
+      setSuggestedTags(pool.filter((tag) => !existing.includes(tag)));
+      setSuggestingTags(false);
+    }, 700);
+  }
+
+  function addSuggestedTag(tag: string) {
+    const current = editTags.split(",").map((tg) => tg.trim()).filter(Boolean);
+    if (current.includes(tag)) return;
+    setEditTags([...current, tag].join(", "));
+    setSuggestedTags((prev) => prev.filter((t) => t !== tag));
   }
 
   function handleSaveEdit() {
@@ -146,7 +199,7 @@ export function BookDetailPage() {
   function handleDelete() {
     deleteBook(b.id);
     toast.success(t.bookDetail.deleteButton);
-    navigate("/catalog");
+    navigate("/books");
   }
 
   function handleLend() {
@@ -182,7 +235,7 @@ export function BookDetailPage() {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/catalog")}>{t.bookDetail.backToCatalog}</Button>
+        <Button variant="ghost" size="sm" onClick={() => navigate("/books")}>{t.bookDetail.backToCatalog}</Button>
         {canEdit && (
           <div className="flex gap-2">
             <Button variant="secondary" size="sm" onClick={openEdit}>{t.bookDetail.editButton}</Button>
@@ -362,6 +415,25 @@ export function BookDetailPage() {
             </ul>
           </Card>
 
+          {/* Ratings */}
+          <Card className="p-4">
+            <div className="mb-4 flex items-center justify-between">
+              <p className="text-xs text-stone uppercase tracking-wide">{t.bookDetail.ratings.title}</p>
+              {canEdit && !hasOwnRating && (
+                <button type="button" className="text-sm text-brand hover:underline" onClick={() => setRatingFormOpen(true)}>
+                  {t.bookDetail.ratings.addReview}
+                </button>
+              )}
+            </div>
+            <div className="space-y-6">
+              {ratingStats.total > 0 && <LibraryRatingSummary stats={ratingStats} />}
+              <BookRatingsList bookId={book.id} ratings={bookRatings} currentUserId={currentUser?.id} users={users} canRate={canEdit} />
+            </div>
+            <Modal open={ratingFormOpen} title={t.bookDetail.ratings.formModalTitle} onClose={() => setRatingFormOpen(false)}>
+              <BookRatingForm bookId={book.id} onDone={() => setRatingFormOpen(false)} />
+            </Modal>
+          </Card>
+
           {/* Loans */}
           <Card className="p-4">
             <p className="mb-2 text-xs text-stone uppercase tracking-wide">{t.bookDetail.loanStatus}</p>
@@ -450,6 +522,28 @@ export function BookDetailPage() {
               </div>
               <Select label={t.books.add.ownerLabel} placeholder={t.books.add.noOwner} value={editOwnerId} onChange={(e) => setEditOwnerId(e.target.value)} options={users.map((u) => ({ value: u.id, label: u.name }))} />
               <Input label={t.bookDetail.tagsLabel} value={editTags} onChange={(e) => setEditTags(e.target.value)} placeholder={t.bookDetail.tagsHint} />
+              <div>
+                <Button type="button" size="sm" variant="secondary" disabled={suggestingTags} onClick={handleSuggestTags}>
+                  {suggestingTags ? t.bookDetail.suggestingTags : t.bookDetail.suggestTagsButton}
+                </Button>
+                {suggestedTags.length > 0 && (
+                  <div className="mt-2">
+                    <p className="mb-1 text-xs text-ink-soft">{t.bookDetail.suggestedTagsHint}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {suggestedTags.map((tag) => (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => addSuggestedTag(tag)}
+                          className="rounded-full border border-brand/30 bg-brand/5 px-2.5 py-0.5 text-xs text-brand hover:bg-brand/10"
+                        >
+                          + {tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
               <Textarea label={t.bookDetail.notes} rows={2} value={editNotes} onChange={(e) => setEditNotes(e.target.value)} />
             </div>
           </div>

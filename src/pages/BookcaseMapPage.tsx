@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { useData } from "../store/DataContext";
 import type { ReadingStatus } from "../data/types";
 import { useLanguage } from "../i18n";
+import { shelfLocationSearch } from "./books/shelfDeeplink";
 
 const STATUS_COLORS: Record<ReadingStatus, string> = {
   read: "bg-sage",
@@ -128,9 +129,18 @@ export function BookcaseMapPage() {
                     (a, b) => (a.shelf_position ?? 0) - (b.shelf_position ?? 0)
                   );
 
+                  const shelfLocation = { room_id: bookcase.room_id, bookcase_id: bookcase.id, section_id: section.id, shelf_id: shelf.id };
+                  const q = shelfLocationSearch(shelfLocation);
+
                   return (
                     <div key={shelf.id}>
-                      <p className="text-xs text-stone mb-2">{t.bookcaseMap.shelfLabel(shelf.shelf_index)}</p>
+                      <div className="mb-2 flex items-center justify-between gap-2">
+                        <p className="text-xs text-stone">{t.bookcaseMap.shelfLabel(shelf.shelf_index)}</p>
+                        <div className="flex items-center gap-3">
+                          <Link to={`/books/add/shelf-scan?${q}`} className="text-xs text-brand hover:underline">{t.bookcaseMap.scanLink}</Link>
+                          <Link to={`/books/audit/shelf?${q}`} className="text-xs text-brand hover:underline">{t.bookcaseMap.auditLink}</Link>
+                        </div>
+                      </div>
 
                       <div className="relative">
                         <div className="flex items-end gap-1 px-3 py-2 bg-paper border border-line rounded-lg min-h-[6rem]">

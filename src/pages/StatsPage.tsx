@@ -1,15 +1,17 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "../components/ui/Card";
 import { Avatar } from "../components/ui/Avatar";
 import { PageHeader } from "../components/ui/PageHeader";
+import { MemberStatsModal } from "./stats/MemberStatsModal";
 import { useData } from "../store/DataContext";
 import { useLanguage } from "../i18n";
-import type { Genre } from "../data/types";
+import type { Genre, User } from "../data/types";
 
 export function StatsPage() {
   const { t } = useLanguage();
   const { books, records, users, reads, rooms } = useData();
+  const [selectedMember, setSelectedMember] = useState<User | null>(null);
 
   const genreByBookId = useMemo(() => {
     const map = new Map<string, Genre>();
@@ -148,7 +150,11 @@ export function StatsPage() {
         <h3 className="text-lg font-medium text-ink mb-4">{t.stats.familyMembers}</h3>
         <div className="grid md:grid-cols-3 gap-4">
           {memberStats.map(({ user, readCount, ownedCount, favoriteGenre }) => (
-            <Card key={user.id} className="p-4">
+            <Card
+              key={user.id}
+              className="cursor-pointer p-4 transition-colors hover:border-brand/40"
+              onClick={() => setSelectedMember(user)}
+            >
               <div className="flex items-center gap-3 mb-4">
                 <Avatar name={user.name} color={user.avatar_color} size="lg" />
                 <div>
@@ -157,11 +163,19 @@ export function StatsPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Link to={`/stats/books?filter=read&user=${user.id}`} className="flex justify-between text-sm hover:text-brand">
+                <Link
+                  to={`/stats/books?filter=read&user=${user.id}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex justify-between text-sm hover:text-brand"
+                >
                   <span className="text-ink-soft">{t.stats.booksRead}</span>
                   <span className="font-semibold text-sage">{readCount}</span>
                 </Link>
-                <Link to={`/stats/books?filter=owned&user=${user.id}`} className="flex justify-between text-sm hover:text-brand">
+                <Link
+                  to={`/stats/books?filter=owned&user=${user.id}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex justify-between text-sm hover:text-brand"
+                >
                   <span className="text-ink-soft">{t.stats.booksOwned}</span>
                   <span className="font-semibold text-ink">{ownedCount}</span>
                 </Link>
@@ -236,6 +250,8 @@ export function StatsPage() {
           </div>
         </Card>
       </div>
+
+      <MemberStatsModal user={selectedMember} onClose={() => setSelectedMember(null)} />
     </div>
   );
 }

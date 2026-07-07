@@ -2,6 +2,7 @@ interface AvatarProps {
   name: string;
   color: string;
   size?: "sm" | "md" | "lg";
+  className?: string;
 }
 
 const SIZE_STYLES = {
@@ -10,7 +11,7 @@ const SIZE_STYLES = {
   lg: "w-12 h-12 text-base",
 };
 
-export function Avatar({ name, color, size = "md" }: AvatarProps) {
+export function Avatar({ name, color, size = "md", className = "" }: AvatarProps) {
   const initials = name
     .split(" ")
     .map((part) => part[0])
@@ -20,7 +21,7 @@ export function Avatar({ name, color, size = "md" }: AvatarProps) {
 
   return (
     <div
-      className={`inline-flex items-center justify-center rounded-full font-semibold text-white flex-shrink-0 ${SIZE_STYLES[size]}`}
+      className={`inline-flex items-center justify-center rounded-full font-semibold text-white flex-shrink-0 ${className || SIZE_STYLES[size]}`}
       style={{ backgroundColor: color }}
       title={name}
     >

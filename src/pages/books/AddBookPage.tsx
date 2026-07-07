@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
@@ -12,7 +12,7 @@ import { useAddBookWithDuplicateCheck } from "../../store/useAddBookWithDuplicat
 import { lookupIsbn, normalizeIsbn, randomIsbnFixture, searchBooks, type IsbnLookupResult } from "../../store/isbnFixtures";
 import { useToast } from "../../store/ToastContext";
 import { useLanguage } from "../../i18n";
-import type { Genre, ReadingStatus } from "../../data/types";
+import type { Genre, ReadingStatus, WishlistItem } from "../../data/types";
 
 const EMPTY_DRAFT: RecordDraft = {
   title: "", main_author: null, other_authors: [], isbn: null, publisher: null,
@@ -22,11 +22,15 @@ const EMPTY_DRAFT: RecordDraft = {
 export function AddBookPage() {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
-  const { users } = useData();
+  const { users, removeWishlistItem } = useData();
   const { conflict, submit, confirmDuplicate, cancelDuplicate } = useAddBookWithDuplicateCheck();
 
-  const [step, setStep] = useState<"lookup" | "form">("lookup");
+  const wishlistPrefill = (location.state as { wishlistPrefill?: WishlistItem["record"]; fromWishlistId?: string } | null)?.wishlistPrefill;
+  const fromWishlistId = (location.state as { fromWishlistId?: string } | null)?.fromWishlistId;
+
+  const [step, setStep] = useState<"lookup" | "form">(wishlistPrefill ? "form" : "lookup");
   const [tab, setTab] = useState<"type" | "scan" | "search">("type");
   const [isbnInput, setIsbnInput] = useState("");
   const [notFound, setNotFound] = useState(false);
@@ -35,7 +39,11 @@ export function AddBookPage() {
   const [searchResults, setSearchResults] = useState<IsbnLookupResult[] | null>(null);
   const [searchMissing, setSearchMissing] = useState(false);
 
-  const [draft, setDraft] = useState<RecordDraft>(EMPTY_DRAFT);
+  const [draft, setDraft] = useState<RecordDraft>(
+    wishlistPrefill
+      ? { ...EMPTY_DRAFT, ...wishlistPrefill, other_authors: [], language: "it" }
+      : EMPTY_DRAFT,
+  );
   const [placement, setPlacement] = useState<LocationValue>({ room_id: null, bookcase_id: null, section_id: null, shelf_id: null });
   const [readingStatus, setReadingStatus] = useState<ReadingStatus>("to_read");
   const [ownerId, setOwnerId] = useState<string>("");
@@ -101,6 +109,7 @@ export function AddBookPage() {
     };
     const created = submit(draft, bookDraft);
     if (created) {
+      if (fromWishlistId) removeWishlistItem(fromWishlistId);
       toast.success(t.books.add.successToast);
       navigate(`/books/${created.id}`);
     }
@@ -109,6 +118,7 @@ export function AddBookPage() {
   function handleConfirmDuplicate() {
     const created = confirmDuplicate();
     if (created) {
+      if (fromWishlistId) removeWishlistItem(fromWishlistId);
       toast.success(t.books.add.successToast);
       navigate(`/books/${created.id}`);
     }
@@ -255,7 +265,7 @@ export function AddBookPage() {
           </Card>
 
           <div className="flex gap-2">
-            <Button type="button" variant="secondary" onClick={() => navigate("/catalog")}>{t.common.back}</Button>
+            <Button type="button" variant="secondary" onClick={() => navigate("/books")}>{t.common.back}</Button>
             <Button type="submit">{t.books.add.submitButton}</Button>
           </div>
         </form>
