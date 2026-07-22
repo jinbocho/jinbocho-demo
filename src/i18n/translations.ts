@@ -9,6 +9,9 @@ export interface Translations {
     stats: string;
     bookDetail: string;
     users: string;
+    kids: string;
+    kidsMyReading: string;
+    bookClub: string;
     settings: string;
   };
   common: {
@@ -74,7 +77,7 @@ export interface Translations {
     goToLoginButton: string;
   };
   enums: {
-    role: { admin: string; editor: string; viewer: string };
+    role: { admin: string; editor: string; viewer: string; child: string };
     readingStatus: { to_read: string; reading: string; read: string };
     genre: Record<string, string>;
     condition: { new: string; good: string; fair: string; poor: string };
@@ -565,6 +568,100 @@ export interface Translations {
       s8: { heading: string; body: string };
     };
   };
+  kids: {
+    navLabel: string;
+    myReadingNavLabel: string;
+    parentTitle: string;
+    parentDescription: string;
+    childTitle: string;
+    childDescription: string;
+    independentOfAiNote: string;
+    sessionsTitle: string;
+    sessionsEmpty: string;
+    loggedByParent: string;
+    loggedByChild: string;
+    quizTitle: string;
+    quizResult: (score: number, total: number) => string;
+    quizEmpty: string;
+    journalTitle: string;
+    journalEmpty: string;
+    pathTitle: string;
+    pathBadge: (name: string) => string;
+    pathProgress: (done: number, total: number) => string;
+    challengeTitle: string;
+    challengeProgress: (done: number, goal: number) => string;
+    challengeNote: string;
+    philosophyLink: string;
+    journalText: Record<string, string>;
+    pathText: Record<string, { title: string; badgeName: string }>;
+    challengeText: Record<string, string>;
+  };
+  bookClub: {
+    navLabel: string;
+    title: string;
+    subtitle: string;
+    startCycleButton: string;
+    startCycleHelp: string;
+    currentReadLabel: string;
+    activeLabel: string;
+    alsoActiveLabel: string;
+    historyLabel: string;
+    historyHint: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    participantsCount: (n: number) => string;
+    proposalsLink: string;
+    cycleTitleLabel: string;
+    pickBookLabel: string;
+    searchPlaceholder: string;
+    createSuccess: string;
+    statusReading: string;
+    statusDiscussing: string;
+    statusArchived: string;
+    moveToDiscussionButton: string;
+    undoMoveToDiscussionButton: string;
+    archiveButton: string;
+    reopenButton: string;
+    archivedNotice: string;
+    archivedReopenHint: string;
+    backLink: string;
+    participantsTitle: string;
+    noParticipants: string;
+    joinButton: string;
+    markFinishedButton: string;
+    finishedLabel: string;
+    aiPromptsTitle: string;
+    showPromptsButton: string;
+    promptsLoading: string;
+    noPrompts: string;
+    meetingsTitle: string;
+    noMeetings: string;
+    meetingWhenLabel: string;
+    meetingNoteLabel: string;
+    meetingNotePlaceholder: string;
+    scheduleButton: string;
+    discussionTitle: string;
+    discussionLocked: string;
+    discussionLockedArchived: string;
+    writePlaceholder: string;
+    spoilerLabel: string;
+    spoilerBadge: string;
+    revealSpoilerButton: string;
+    postButton: string;
+    noPosts: string;
+    ratingLabel: (avg: number, total: number) => string;
+    proposalsTitle: string;
+    proposalsSubtitle: string;
+    proposeBookButton: string;
+    proposalNoteLabel: string;
+    proposalNotePlaceholder: string;
+    noProposals: string;
+    noProposalsDescription: string;
+    promoteButton: string;
+    promoteSuccess: string;
+    // Mock AI discussion prompts — "{title}" is replaced with the cycle's book title.
+    aiPromptTemplates: string[];
+  };
 }
 
 export const it: Translations = {
@@ -578,6 +675,9 @@ export const it: Translations = {
     stats: "Statistiche",
     bookDetail: "Dettaglio libro",
     users: "Utenti",
+    kids: "Kids",
+    kidsMyReading: "La mia lettura",
+    bookClub: "Circolo",
     settings: "Impostazioni",
   },
   common: {
@@ -643,7 +743,7 @@ export const it: Translations = {
     goToLoginButton: "Vai al login",
   },
   enums: {
-    role: { admin: "Admin", editor: "Editor", viewer: "Lettore" },
+    role: { admin: "Admin", editor: "Editor", viewer: "Lettore", child: "Bambino" },
     readingStatus: { to_read: "Da leggere", reading: "In lettura", read: "Letto" },
     genre: {
       fiction: "Narrativa", fantasy: "Fantasy", science_fiction: "Fantascienza", mystery_thriller: "Giallo/Thriller",
@@ -1218,6 +1318,112 @@ export const it: Translations = {
       },
     },
   },
+  kids: {
+    navLabel: "Kids",
+    myReadingNavLabel: "La mia lettura",
+    parentTitle: "Kids Mode",
+    parentDescription: "Sessioni di lettura, quiz, diario e sfide di famiglia — pensati per far crescere lettori, non per metterli in competizione.",
+    childTitle: "La mia lettura",
+    childDescription: "Quello che stai leggendo, il tuo diario e i tuoi quiz.",
+    independentOfAiNote: "Kids Mode funziona anche senza il modulo AI — qui sotto solo le funzionalità principali.",
+    sessionsTitle: "Sessioni di lettura",
+    sessionsEmpty: "Nessuna sessione registrata ancora.",
+    loggedByParent: "letta insieme a un genitore",
+    loggedByChild: "letta da te",
+    quizTitle: "Quiz di comprensione",
+    quizResult: (score: number, total: number) => `Hai risposto correttamente a ${score} domande su ${total}`,
+    quizEmpty: "Nessun quiz ancora per questo libro.",
+    journalTitle: "Diario di lettura",
+    journalEmpty: "Nessuna voce nel diario ancora.",
+    pathTitle: "Percorso di lettura",
+    pathBadge: (name: string) => `Ricompensa: ${name}`,
+    pathProgress: (done: number, total: number) => `${done} di ${total} libri letti`,
+    challengeTitle: "Sfida di famiglia",
+    challengeProgress: (done: number, goal: number) => `${done} / ${goal} minuti insieme`,
+    challengeNote: "Un solo obiettivo condiviso, nessuna classifica tra fratelli — nemmeno nei dati.",
+    philosophyLink: "Perché è fatto così →",
+    journalText: {
+      je1: "La volpe è la mia parte preferita!",
+      je2: "Harry scopre di essere un mago e riceve la lettera da Hogwarts. Se fossi io avrei scelto la casa di Grifondoro, come lui.",
+    },
+    pathText: {
+      rp1: { title: "Mondi fantastici", badgeName: "Esploratore di mondi" },
+    },
+    challengeText: {
+      fc1: "1000 minuti insieme quest'estate",
+    },
+  },
+  bookClub: {
+    navLabel: "Circolo",
+    title: "Circolo dei lettori",
+    subtitle: "Scegliete un libro, leggetelo insieme e discutetene",
+    startCycleButton: "Avvia un ciclo di lettura",
+    startCycleHelp: "Un ciclo è una lettura condivisa: scegli un libro del catalogo, i membri lo leggono nello stesso periodo e ne discutono. Incluso gratis, anche in Community.",
+    currentReadLabel: "In lettura ora",
+    activeLabel: "In corso",
+    alsoActiveLabel: "Altri cicli in corso",
+    historyLabel: "Storico",
+    historyHint: "Cicli conclusi: apri per rivedere discussione, partecipanti e voto.",
+    emptyTitle: "Nessun ciclo di lettura",
+    emptyDescription: "Avvia un ciclo per leggere un libro insieme agli altri membri.",
+    participantsCount: (n) => `${n} partecipanti`,
+    proposalsLink: "Proposte",
+    cycleTitleLabel: "Titolo del ciclo",
+    pickBookLabel: "Scegli un libro",
+    searchPlaceholder: "Cerca tra i tuoi libri",
+    createSuccess: "Ciclo avviato",
+    statusReading: "In lettura",
+    statusDiscussing: "In discussione",
+    statusArchived: "Archiviato",
+    moveToDiscussionButton: "Passa alla discussione",
+    undoMoveToDiscussionButton: "Annulla, torna alla lettura",
+    archiveButton: "Archivia",
+    reopenButton: "Riapri il ciclo",
+    archivedNotice: "Ciclo concluso e archiviato. Sola lettura.",
+    archivedReopenHint: "Cliccato per sbaglio? Puoi riaprirlo.",
+    backLink: "Circolo dei lettori",
+    participantsTitle: "Partecipanti",
+    noParticipants: "Ancora nessun partecipante",
+    joinButton: "Partecipa",
+    markFinishedButton: "Segna come finito",
+    finishedLabel: "Finito",
+    aiPromptsTitle: "Spunti di discussione",
+    showPromptsButton: "Mostra spunti",
+    promptsLoading: "Generazione in corso…",
+    noPrompts: "Nessuno spunto disponibile",
+    meetingsTitle: "Incontri",
+    noMeetings: "Nessun incontro in programma",
+    meetingWhenLabel: "Data e ora",
+    meetingNoteLabel: "Luogo o link",
+    meetingNotePlaceholder: "Biblioteca, sala 2 oppure link video",
+    scheduleButton: "Programma",
+    discussionTitle: "Discussione",
+    discussionLocked: "La discussione si apre quando il ciclo passa alla discussione.",
+    discussionLockedArchived: "Ciclo archiviato: la discussione è chiusa. Riapri il ciclo per continuare a scrivere.",
+    writePlaceholder: "Scrivi un commento",
+    spoilerLabel: "Contiene spoiler",
+    spoilerBadge: "Spoiler",
+    revealSpoilerButton: "Mostra spoiler",
+    postButton: "Pubblica",
+    noPosts: "Ancora nessun commento",
+    ratingLabel: (avg, total) => `★ ${avg} (${total})`,
+    proposalsTitle: "Proposte",
+    proposalsSubtitle: "Proponi e vota il prossimo libro",
+    proposeBookButton: "Proponi un libro",
+    proposalNoteLabel: "Nota (facoltativa)",
+    proposalNotePlaceholder: "Perché lo proponi",
+    noProposals: "Nessuna proposta",
+    noProposalsDescription: "Proponi un libro da votare per il prossimo ciclo.",
+    promoteButton: "Promuovi",
+    promoteSuccess: "Ciclo avviato dalla proposta",
+    aiPromptTemplates: [
+      "Cosa vi ha sorpreso di più leggendo «{title}»?",
+      "C'è un personaggio di «{title}» in cui vi siete riconosciuti? Perché?",
+      "Se poteste cambiare il finale di «{title}», come lo riscrivereste?",
+      "Quale scena di «{title}» vi è rimasta più impressa, e perché?",
+      "Consigliereste «{title}» a un amico? A chi in particolare?",
+    ],
+  },
 };
 
 export const en: Translations = {
@@ -1231,6 +1437,9 @@ export const en: Translations = {
     stats: "Statistics",
     bookDetail: "Book Detail",
     users: "Users",
+    kids: "Kids",
+    kidsMyReading: "My Reading",
+    bookClub: "Book Club",
     settings: "Settings",
   },
   common: {
@@ -1296,7 +1505,7 @@ export const en: Translations = {
     goToLoginButton: "Go to sign in",
   },
   enums: {
-    role: { admin: "Admin", editor: "Editor", viewer: "Viewer" },
+    role: { admin: "Admin", editor: "Editor", viewer: "Viewer", child: "Child" },
     readingStatus: { to_read: "To read", reading: "Reading", read: "Read" },
     genre: {
       fiction: "Fiction", fantasy: "Fantasy", science_fiction: "Science Fiction", mystery_thriller: "Mystery/Thriller",
@@ -1870,6 +2079,112 @@ export const en: Translations = {
       },
     },
   },
+  kids: {
+    navLabel: "Kids",
+    myReadingNavLabel: "My Reading",
+    parentTitle: "Kids Mode",
+    parentDescription: "Reading sessions, quizzes, journal and family challenges — built to grow readers, not to put them in competition.",
+    childTitle: "My Reading",
+    childDescription: "What you're reading, your journal, and your quizzes.",
+    independentOfAiNote: "Kids Mode works even without the AI module — only the core features are shown below.",
+    sessionsTitle: "Reading Sessions",
+    sessionsEmpty: "No sessions logged yet.",
+    loggedByParent: "read together with a parent",
+    loggedByChild: "read by you",
+    quizTitle: "Comprehension Quiz",
+    quizResult: (score: number, total: number) => `You answered ${score} out of ${total} questions correctly`,
+    quizEmpty: "No quiz yet for this book.",
+    journalTitle: "Reading Journal",
+    journalEmpty: "No journal entries yet.",
+    pathTitle: "Reading Path",
+    pathBadge: (name: string) => `Reward: ${name}`,
+    pathProgress: (done: number, total: number) => `${done} of ${total} books read`,
+    challengeTitle: "Family Challenge",
+    challengeProgress: (done: number, goal: number) => `${done} / ${goal} minutes together`,
+    challengeNote: "One shared goal, no leaderboard between siblings — not even in the data.",
+    philosophyLink: "Why it's built this way →",
+    journalText: {
+      je1: "The fox is my favourite part!",
+      je2: "Harry finds out he's a wizard and gets his letter from Hogwarts. If it were me, I'd have chosen Gryffindor too, like him.",
+    },
+    pathText: {
+      rp1: { title: "Fantastic Worlds", badgeName: "World Explorer" },
+    },
+    challengeText: {
+      fc1: "1000 minutes together this summer",
+    },
+  },
+  bookClub: {
+    navLabel: "Book Club",
+    title: "Book Club",
+    subtitle: "Pick a book, read it together, talk about it",
+    startCycleButton: "Start a reading cycle",
+    startCycleHelp: "A cycle is a shared read: pick a book from the catalog, members read it over the same period and discuss it. Included free, even in Community.",
+    currentReadLabel: "Reading now",
+    activeLabel: "Active",
+    alsoActiveLabel: "Other active cycles",
+    historyLabel: "History",
+    historyHint: "Finished cycles: open one to revisit its discussion, participants and rating.",
+    emptyTitle: "No reading cycles yet",
+    emptyDescription: "Start a cycle to read a book together with the other members.",
+    participantsCount: (n) => `${n} participants`,
+    proposalsLink: "Proposals",
+    cycleTitleLabel: "Cycle title",
+    pickBookLabel: "Pick a book",
+    searchPlaceholder: "Search your books",
+    createSuccess: "Cycle started",
+    statusReading: "Reading",
+    statusDiscussing: "Discussing",
+    statusArchived: "Archived",
+    moveToDiscussionButton: "Move to discussion",
+    undoMoveToDiscussionButton: "Undo, back to reading",
+    archiveButton: "Archive",
+    reopenButton: "Reopen the cycle",
+    archivedNotice: "Cycle finished and archived. Read-only.",
+    archivedReopenHint: "Clicked by mistake? You can reopen it.",
+    backLink: "Book Club",
+    participantsTitle: "Participants",
+    noParticipants: "No participants yet",
+    joinButton: "Join",
+    markFinishedButton: "Mark as finished",
+    finishedLabel: "Finished",
+    aiPromptsTitle: "Discussion prompts",
+    showPromptsButton: "Show prompts",
+    promptsLoading: "Generating…",
+    noPrompts: "No prompts available",
+    meetingsTitle: "Meetings",
+    noMeetings: "No meetings scheduled",
+    meetingWhenLabel: "Date and time",
+    meetingNoteLabel: "Place or link",
+    meetingNotePlaceholder: "Library, room 2 or a video link",
+    scheduleButton: "Schedule",
+    discussionTitle: "Discussion",
+    discussionLocked: "Discussion opens once the cycle moves to discussion.",
+    discussionLockedArchived: "Cycle archived: discussion is closed. Reopen the cycle to keep writing.",
+    writePlaceholder: "Write a comment",
+    spoilerLabel: "Contains spoilers",
+    spoilerBadge: "Spoiler",
+    revealSpoilerButton: "Reveal spoiler",
+    postButton: "Post",
+    noPosts: "No comments yet",
+    ratingLabel: (avg, total) => `★ ${avg} (${total})`,
+    proposalsTitle: "Proposals",
+    proposalsSubtitle: "Propose and vote on the next book",
+    proposeBookButton: "Propose a book",
+    proposalNoteLabel: "Note (optional)",
+    proposalNotePlaceholder: "Why you propose it",
+    noProposals: "No proposals",
+    noProposalsDescription: "Propose a book to vote on for the next cycle.",
+    promoteButton: "Promote",
+    promoteSuccess: "Cycle started from the proposal",
+    aiPromptTemplates: [
+      "What surprised you most about reading \"{title}\"?",
+      "Is there a character in \"{title}\" you recognised yourself in? Why?",
+      "If you could change the ending of \"{title}\", how would you rewrite it?",
+      "Which scene from \"{title}\" stuck with you most, and why?",
+      "Would you recommend \"{title}\" to a friend? Who specifically?",
+    ],
+  },
 };
 
 export const es: Translations = {
@@ -1883,6 +2198,9 @@ export const es: Translations = {
     stats: "Estadísticas",
     bookDetail: "Detalle del libro",
     users: "Usuarios",
+    kids: "Kids",
+    kidsMyReading: "Mi lectura",
+    bookClub: "Club",
     settings: "Ajustes",
   },
   common: {
@@ -1948,7 +2266,7 @@ export const es: Translations = {
     goToLoginButton: "Ir a iniciar sesión",
   },
   enums: {
-    role: { admin: "Admin", editor: "Editor", viewer: "Lector" },
+    role: { admin: "Admin", editor: "Editor", viewer: "Lector", child: "Niño/a" },
     readingStatus: { to_read: "Por leer", reading: "Leyendo", read: "Leído" },
     genre: {
       fiction: "Ficción", fantasy: "Fantasía", science_fiction: "Ciencia ficción", mystery_thriller: "Misterio/Thriller",
@@ -2522,6 +2840,112 @@ export const es: Translations = {
       },
     },
   },
+  kids: {
+    navLabel: "Kids",
+    myReadingNavLabel: "Mi lectura",
+    parentTitle: "Kids Mode",
+    parentDescription: "Sesiones de lectura, cuestionarios, diario y retos familiares — pensados para formar lectores, no para competir.",
+    childTitle: "Mi lectura",
+    childDescription: "Lo que estás leyendo, tu diario y tus cuestionarios.",
+    independentOfAiNote: "Kids Mode funciona incluso sin el módulo de IA — abajo solo las funciones principales.",
+    sessionsTitle: "Sesiones de lectura",
+    sessionsEmpty: "Todavía no hay sesiones registradas.",
+    loggedByParent: "leído junto a un adulto",
+    loggedByChild: "leído por ti",
+    quizTitle: "Cuestionario de comprensión",
+    quizResult: (score: number, total: number) => `Respondiste correctamente ${score} de ${total} preguntas`,
+    quizEmpty: "Todavía no hay cuestionario para este libro.",
+    journalTitle: "Diario de lectura",
+    journalEmpty: "Todavía no hay entradas en el diario.",
+    pathTitle: "Ruta de lectura",
+    pathBadge: (name: string) => `Recompensa: ${name}`,
+    pathProgress: (done: number, total: number) => `${done} de ${total} libros leídos`,
+    challengeTitle: "Reto familiar",
+    challengeProgress: (done: number, goal: number) => `${done} / ${goal} minutos juntos`,
+    challengeNote: "Un único objetivo compartido, sin clasificación entre hermanos — ni siquiera en los datos.",
+    philosophyLink: "Por qué está hecho así →",
+    journalText: {
+      je1: "¡El zorro es mi parte favorita!",
+      je2: "Harry descubre que es un mago y recibe su carta de Hogwarts. Si fuera yo, también habría elegido Gryffindor, como él.",
+    },
+    pathText: {
+      rp1: { title: "Mundos fantásticos", badgeName: "Explorador de mundos" },
+    },
+    challengeText: {
+      fc1: "1000 minutos juntos este verano",
+    },
+  },
+  bookClub: {
+    navLabel: "Club",
+    title: "Club de lectura",
+    subtitle: "Elegid un libro, leedlo juntos y comentadlo",
+    startCycleButton: "Iniciar un ciclo de lectura",
+    startCycleHelp: "Un ciclo es una lectura compartida: elige un libro del catálogo, los miembros lo leen en el mismo periodo y lo comentan. Incluido gratis, incluso en Community.",
+    currentReadLabel: "Leyendo ahora",
+    activeLabel: "En curso",
+    alsoActiveLabel: "Otros ciclos en curso",
+    historyLabel: "Historial",
+    historyHint: "Ciclos terminados: abre uno para revisar su debate, participantes y valoración.",
+    emptyTitle: "Aún no hay ciclos de lectura",
+    emptyDescription: "Inicia un ciclo para leer un libro junto a los demás miembros.",
+    participantsCount: (n) => `${n} participantes`,
+    proposalsLink: "Propuestas",
+    cycleTitleLabel: "Título del ciclo",
+    pickBookLabel: "Elige un libro",
+    searchPlaceholder: "Busca en tus libros",
+    createSuccess: "Ciclo iniciado",
+    statusReading: "En lectura",
+    statusDiscussing: "En debate",
+    statusArchived: "Archivado",
+    moveToDiscussionButton: "Pasar al debate",
+    undoMoveToDiscussionButton: "Deshacer, volver a la lectura",
+    archiveButton: "Archivar",
+    reopenButton: "Reabrir el ciclo",
+    archivedNotice: "Ciclo terminado y archivado. Solo lectura.",
+    archivedReopenHint: "¿Lo cerraste por error? Puedes reabrirlo.",
+    backLink: "Club de lectura",
+    participantsTitle: "Participantes",
+    noParticipants: "Aún no hay participantes",
+    joinButton: "Unirse",
+    markFinishedButton: "Marcar como terminado",
+    finishedLabel: "Terminado",
+    aiPromptsTitle: "Preguntas para debatir",
+    showPromptsButton: "Mostrar preguntas",
+    promptsLoading: "Generando…",
+    noPrompts: "No hay preguntas disponibles",
+    meetingsTitle: "Encuentros",
+    noMeetings: "Ningún encuentro programado",
+    meetingWhenLabel: "Fecha y hora",
+    meetingNoteLabel: "Lugar o enlace",
+    meetingNotePlaceholder: "Biblioteca, sala 2 o enlace de vídeo",
+    scheduleButton: "Programar",
+    discussionTitle: "Debate",
+    discussionLocked: "El debate se abre cuando el ciclo pasa al debate.",
+    discussionLockedArchived: "Ciclo archivado: el debate está cerrado. Reabre el ciclo para seguir escribiendo.",
+    writePlaceholder: "Escribe un comentario",
+    spoilerLabel: "Contiene spoilers",
+    spoilerBadge: "Spoiler",
+    revealSpoilerButton: "Mostrar spoiler",
+    postButton: "Publicar",
+    noPosts: "Aún no hay comentarios",
+    ratingLabel: (avg, total) => `★ ${avg} (${total})`,
+    proposalsTitle: "Propuestas",
+    proposalsSubtitle: "Propón y vota el próximo libro",
+    proposeBookButton: "Proponer un libro",
+    proposalNoteLabel: "Nota (opcional)",
+    proposalNotePlaceholder: "Por qué lo propones",
+    noProposals: "Sin propuestas",
+    noProposalsDescription: "Propón un libro para votar en el próximo ciclo.",
+    promoteButton: "Promover",
+    promoteSuccess: "Ciclo iniciado desde la propuesta",
+    aiPromptTemplates: [
+      "¿Qué os sorprendió más al leer «{title}»?",
+      "¿Hay algún personaje de «{title}» en el que os hayáis reconocido? ¿Por qué?",
+      "Si pudierais cambiar el final de «{title}», ¿cómo lo reescribiríais?",
+      "¿Qué escena de «{title}» os dejó más huella, y por qué?",
+      "¿Recomendaríais «{title}» a un amigo? ¿A quién en concreto?",
+    ],
+  },
 };
 
 export const fr: Translations = {
@@ -2535,6 +2959,9 @@ export const fr: Translations = {
     stats: "Statistiques",
     bookDetail: "Détail du livre",
     users: "Utilisateurs",
+    kids: "Kids",
+    kidsMyReading: "Ma lecture",
+    bookClub: "Club",
     settings: "Paramètres",
   },
   common: {
@@ -2600,7 +3027,7 @@ export const fr: Translations = {
     goToLoginButton: "Aller à la connexion",
   },
   enums: {
-    role: { admin: "Admin", editor: "Éditeur", viewer: "Lecteur" },
+    role: { admin: "Admin", editor: "Éditeur", viewer: "Lecteur", child: "Enfant" },
     readingStatus: { to_read: "À lire", reading: "En cours", read: "Lu" },
     genre: {
       fiction: "Fiction", fantasy: "Fantasy", science_fiction: "Science-fiction", mystery_thriller: "Policier/Thriller",
@@ -3173,5 +3600,111 @@ export const fr: Translations = {
         body: "Ces conditions sont régies par le droit italien. Si vous êtes un consommateur résidant dans l'UE, les règles impératives de protection des consommateurs de votre propre pays de résidence peuvent également s'appliquer, et — conformément au Code de la consommation italien, Art. 33 — le tribunal de votre lieu de résidence est compétent pour tout litige. Pour les litiges non couverts par la protection impérative des consommateurs, [tribunal/juridiction compétent en attente de confirmation].",
       },
     },
+  },
+  kids: {
+    navLabel: "Kids",
+    myReadingNavLabel: "Ma lecture",
+    parentTitle: "Kids Mode",
+    parentDescription: "Sessions de lecture, quiz, journal et défis familiaux — conçus pour faire grandir des lecteurs, pas pour les mettre en compétition.",
+    childTitle: "Ma lecture",
+    childDescription: "Ce que tu lis, ton journal et tes quiz.",
+    independentOfAiNote: "Kids Mode fonctionne même sans le module IA — seules les fonctionnalités principales sont affichées ci-dessous.",
+    sessionsTitle: "Sessions de lecture",
+    sessionsEmpty: "Aucune session enregistrée pour l'instant.",
+    loggedByParent: "lu avec un parent",
+    loggedByChild: "lu par toi",
+    quizTitle: "Quiz de compréhension",
+    quizResult: (score: number, total: number) => `Tu as répondu correctement à ${score} questions sur ${total}`,
+    quizEmpty: "Pas encore de quiz pour ce livre.",
+    journalTitle: "Journal de lecture",
+    journalEmpty: "Pas encore d'entrée dans le journal.",
+    pathTitle: "Parcours de lecture",
+    pathBadge: (name: string) => `Récompense : ${name}`,
+    pathProgress: (done: number, total: number) => `${done} livres lus sur ${total}`,
+    challengeTitle: "Défi familial",
+    challengeProgress: (done: number, goal: number) => `${done} / ${goal} minutes ensemble`,
+    challengeNote: "Un seul objectif partagé, aucun classement entre frères et sœurs — même pas dans les données.",
+    philosophyLink: "Pourquoi c'est conçu ainsi →",
+    journalText: {
+      je1: "Le renard est ma partie préférée !",
+      je2: "Harry découvre qu'il est un sorcier et reçoit sa lettre de Poudlard. Si c'était moi, j'aurais aussi choisi Gryffondor, comme lui.",
+    },
+    pathText: {
+      rp1: { title: "Mondes fantastiques", badgeName: "Explorateur de mondes" },
+    },
+    challengeText: {
+      fc1: "1000 minutes ensemble cet été",
+    },
+  },
+  bookClub: {
+    navLabel: "Club",
+    title: "Club de lecture",
+    subtitle: "Choisissez un livre, lisez-le ensemble et échangez",
+    startCycleButton: "Lancer un cycle de lecture",
+    startCycleHelp: "Un cycle est une lecture partagée : choisissez un livre du catalogue, les membres le lisent sur la même période et en discutent. Inclus gratuitement, même en Community.",
+    currentReadLabel: "En lecture",
+    activeLabel: "En cours",
+    alsoActiveLabel: "Autres cycles en cours",
+    historyLabel: "Historique",
+    historyHint: "Cycles terminés : ouvrez-en un pour revoir sa discussion, ses participants et sa note.",
+    emptyTitle: "Pas encore de cycle de lecture",
+    emptyDescription: "Lancez un cycle pour lire un livre avec les autres membres.",
+    participantsCount: (n) => `${n} participants`,
+    proposalsLink: "Propositions",
+    cycleTitleLabel: "Titre du cycle",
+    pickBookLabel: "Choisir un livre",
+    searchPlaceholder: "Rechercher dans vos livres",
+    createSuccess: "Cycle lancé",
+    statusReading: "En lecture",
+    statusDiscussing: "En discussion",
+    statusArchived: "Archivé",
+    moveToDiscussionButton: "Passer à la discussion",
+    undoMoveToDiscussionButton: "Annuler, revenir à la lecture",
+    archiveButton: "Archiver",
+    reopenButton: "Rouvrir le cycle",
+    archivedNotice: "Cycle terminé et archivé. Lecture seule.",
+    archivedReopenHint: "Cliqué par erreur ? Vous pouvez le rouvrir.",
+    backLink: "Club de lecture",
+    participantsTitle: "Participants",
+    noParticipants: "Aucun participant pour l'instant",
+    joinButton: "Participer",
+    markFinishedButton: "Marquer comme terminé",
+    finishedLabel: "Terminé",
+    aiPromptsTitle: "Pistes de discussion",
+    showPromptsButton: "Afficher les pistes",
+    promptsLoading: "Génération en cours…",
+    noPrompts: "Aucune piste disponible",
+    meetingsTitle: "Rencontres",
+    noMeetings: "Aucune rencontre prévue",
+    meetingWhenLabel: "Date et heure",
+    meetingNoteLabel: "Lieu ou lien",
+    meetingNotePlaceholder: "Bibliothèque, salle 2 ou lien vidéo",
+    scheduleButton: "Programmer",
+    discussionTitle: "Discussion",
+    discussionLocked: "La discussion s'ouvre une fois le cycle passé à la discussion.",
+    discussionLockedArchived: "Cycle archivé : la discussion est fermée. Rouvrez le cycle pour continuer à écrire.",
+    writePlaceholder: "Écrivez un commentaire",
+    spoilerLabel: "Contient des spoilers",
+    spoilerBadge: "Spoiler",
+    revealSpoilerButton: "Afficher le spoiler",
+    postButton: "Publier",
+    noPosts: "Aucun commentaire pour l'instant",
+    ratingLabel: (avg, total) => `★ ${avg} (${total})`,
+    proposalsTitle: "Propositions",
+    proposalsSubtitle: "Proposez et votez le prochain livre",
+    proposeBookButton: "Proposer un livre",
+    proposalNoteLabel: "Note (facultative)",
+    proposalNotePlaceholder: "Pourquoi vous le proposez",
+    noProposals: "Aucune proposition",
+    noProposalsDescription: "Proposez un livre à voter pour le prochain cycle.",
+    promoteButton: "Promouvoir",
+    promoteSuccess: "Cycle lancé depuis la proposition",
+    aiPromptTemplates: [
+      "Qu'est-ce qui vous a le plus surpris en lisant « {title} » ?",
+      "Y a-t-il un personnage de « {title} » dans lequel vous vous êtes reconnu ? Pourquoi ?",
+      "Si vous pouviez changer la fin de « {title} », comment la réécririez-vous ?",
+      "Quelle scène de « {title} » vous a le plus marqué, et pourquoi ?",
+      "Recommanderiez-vous « {title} » à un ami ? À qui en particulier ?",
+    ],
   },
 };

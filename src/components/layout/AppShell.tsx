@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { BarChart3, Bookmark, BookOpen, BookUp, LogOut, MapPin, Home, Menu, Settings, Users } from "lucide-react";
+import { BarChart3, Bookmark, BookOpen, BookUp, LogOut, MapPin, MessagesSquare, Home, Menu, Settings, Sparkles, Users } from "lucide-react";
 import { DemoBanner } from "./DemoBanner";
 import { MobileDrawer } from "./MobileDrawer";
 import { useLanguage, type Language } from "../../i18n";
@@ -25,16 +25,23 @@ export function AppShell({ children }: AppShellProps) {
   const { currentUser, logout, hasRole } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const NAV_ITEMS = [
-    { path: "/", label: t.nav.home, icon: <Home size={18} />, end: true },
-    { path: "/books", label: t.nav.books, icon: <BookOpen size={18} /> },
-    { path: "/loans", label: t.nav.loans, icon: <BookUp size={18} /> },
-    { path: "/wishlist", label: t.nav.wishlist, icon: <Bookmark size={18} /> },
-    { path: "/locations", label: t.nav.locations, icon: <MapPin size={18} /> },
-    { path: "/stats", label: t.nav.stats, icon: <BarChart3 size={18} /> },
-    ...(hasRole("admin") ? [{ path: "/users", label: t.nav.users, icon: <Users size={18} /> }] : []),
-    { path: "/settings", label: t.nav.settings, icon: <Settings size={18} /> },
-  ];
+  const NAV_ITEMS = hasRole("child")
+    ? [
+        { path: "/kids/my-reading", label: t.nav.kidsMyReading, icon: <BookOpen size={18} />, end: true },
+        { path: "/settings", label: t.nav.settings, icon: <Settings size={18} /> },
+      ]
+    : [
+        { path: "/", label: t.nav.home, icon: <Home size={18} />, end: true },
+        { path: "/books", label: t.nav.books, icon: <BookOpen size={18} /> },
+        { path: "/loans", label: t.nav.loans, icon: <BookUp size={18} /> },
+        { path: "/wishlist", label: t.nav.wishlist, icon: <Bookmark size={18} /> },
+        { path: "/locations", label: t.nav.locations, icon: <MapPin size={18} /> },
+        { path: "/stats", label: t.nav.stats, icon: <BarChart3 size={18} /> },
+        { path: "/book-club", label: t.nav.bookClub, icon: <MessagesSquare size={18} /> },
+        ...(hasRole("admin", "editor") ? [{ path: "/kids", label: t.nav.kids, icon: <Sparkles size={18} /> }] : []),
+        ...(hasRole("admin") ? [{ path: "/users", label: t.nav.users, icon: <Users size={18} /> }] : []),
+        { path: "/settings", label: t.nav.settings, icon: <Settings size={18} /> },
+      ];
 
   function handleLogout() {
     logout();

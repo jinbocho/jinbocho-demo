@@ -12,8 +12,8 @@ export function PrivacyPolicyPage() {
         <h2 className="font-medium text-ink">{p.s1.heading}</h2>
         <p>
           {p.s1.before}{" "}
-          <a className="text-brand underline" href="mailto:jinbochoapp@gmail.com">
-            jinbochoapp@gmail.com
+          <a className="text-brand underline" href="mailto:support@jinbocho.eu">
+            support@jinbocho.eu
           </a>
           .
         </p>
@@ -76,8 +76,8 @@ export function PrivacyPolicyPage() {
       <section>
         <h2 className="font-medium text-ink">{p.s9.heading}</h2>
         <p>
-          <a className="text-brand underline" href="mailto:jinbochoapp@gmail.com">
-            jinbochoapp@gmail.com
+          <a className="text-brand underline" href="mailto:support@jinbocho.eu">
+            support@jinbocho.eu
           </a>
         </p>
       </section>

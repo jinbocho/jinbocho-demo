@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "./i18n";
 import { ToastProvider } from "./store/ToastContext";
 import { DataProvider } from "./store/DataContext";
@@ -30,6 +30,12 @@ import { SettingsPage } from "./pages/settings/SettingsPage";
 import { PrivacyPolicyPage } from "./pages/legal/PrivacyPolicyPage";
 import { TermsPage } from "./pages/legal/TermsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { ParentKidsDashboardPage } from "./pages/kids/ParentKidsDashboardPage";
+import { MyReadingPage } from "./pages/kids/MyReadingPage";
+import { BookClubPage } from "./pages/bookclub/BookClubPage";
+import { CycleDetailPage } from "./pages/bookclub/CycleDetailPage";
+import { ProposalsPage } from "./pages/bookclub/ProposalsPage";
+import { useAuth } from "./store/AuthContext";
 
 function ProtectedShell({ children }: { children: React.ReactNode }) {
   return (
@@ -37,6 +43,14 @@ function ProtectedShell({ children }: { children: React.ReactNode }) {
       <AppShell>{children}</AppShell>
     </RequireAuth>
   );
+}
+
+// A child account's home is their own reading page, not the catalog
+// dashboard — mirrors the real app's role-based landing behaviour.
+function HomeOrMyReading() {
+  const { hasRole } = useAuth();
+  if (hasRole("child")) return <Navigate to="/kids/my-reading" replace />;
+  return <DashboardPage />;
 }
 
 export function App() {
@@ -55,7 +69,12 @@ export function App() {
                   <Route path="/legal/privacy-policy" element={<PrivacyPolicyPage />} />
                   <Route path="/legal/terms" element={<TermsPage />} />
 
-                  <Route path="/" element={<ProtectedShell><DashboardPage /></ProtectedShell>} />
+                  <Route path="/" element={<ProtectedShell><HomeOrMyReading /></ProtectedShell>} />
+                  <Route
+                    path="/kids"
+                    element={<ProtectedShell><RequireRole roles={["admin", "editor"]}><ParentKidsDashboardPage /></RequireRole></ProtectedShell>}
+                  />
+                  <Route path="/kids/my-reading" element={<ProtectedShell><MyReadingPage /></ProtectedShell>} />
                   <Route path="/books" element={<ProtectedShell><CatalogPage /></ProtectedShell>} />
                   <Route
                     path="/books/add"
@@ -81,6 +100,9 @@ export function App() {
                   <Route path="/wishlist/add" element={<ProtectedShell><AddWishlistPage /></ProtectedShell>} />
                   <Route path="/stats" element={<ProtectedShell><StatsPage /></ProtectedShell>} />
                   <Route path="/stats/books" element={<ProtectedShell><StatsBookListPage /></ProtectedShell>} />
+                  <Route path="/book-club" element={<ProtectedShell><BookClubPage /></ProtectedShell>} />
+                  <Route path="/book-club/proposals" element={<ProtectedShell><ProposalsPage /></ProtectedShell>} />
+                  <Route path="/book-club/:id" element={<ProtectedShell><CycleDetailPage /></ProtectedShell>} />
                   <Route
                     path="/users"
                     element={<ProtectedShell><RequireRole roles={["admin"]}><UsersPage /></RequireRole></ProtectedShell>}

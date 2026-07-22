@@ -1,5 +1,5 @@
 export type ReadingStatus = "to_read" | "reading" | "read";
-export type UserRole = "admin" | "editor" | "viewer";
+export type UserRole = "admin" | "editor" | "viewer" | "child";
 export type BookCondition = "new" | "good" | "fair" | "poor";
 export type BookSource = "purchased" | "gift" | "borrowed" | "other";
 export type IncipitSource = "manual" | "ai" | "editorial";
@@ -155,6 +155,116 @@ export interface LibraryRatingStats {
   average: number | null;
   total: number;
   distribution: Record<number, number>;
+}
+
+// Kids Mode — child accounts, reading sessions, quiz, journal, reading paths,
+// family challenges. No leaderboard/score field exists anywhere in this
+// group by design: rewards are narrative (badge_name) or a single shared
+// progress value, never a per-member comparison.
+export interface ReadingSession {
+  id: string;
+  child_id: string;
+  book_id: string;
+  logged_by_parent: boolean;
+  created_at: string;
+}
+
+export interface QuizQuestion {
+  id: string;
+  book_id: string;
+  prompt: string;
+  choices: string[];
+  correct_index: number;
+}
+
+export interface QuizAttempt {
+  id: string;
+  child_id: string;
+  book_id: string;
+  score: number;
+  total: number;
+  created_at: string;
+}
+
+// text/title/badge_name are intentionally NOT stored here — this is demo
+// copy, not real user content, so it must follow the UI language. Display
+// strings live in translations.ts (t.kids.journalText/pathText/challengeText),
+// keyed by these entities' ids.
+export interface JournalEntry {
+  id: string;
+  child_id: string;
+  book_id: string;
+  emoji: string | null;
+  created_at: string;
+}
+
+export interface ReadingPath {
+  id: string;
+  book_ids: string[];
+}
+
+export interface FamilyChallenge {
+  id: string;
+  goal_minutes: number;
+  progress_minutes: number;
+}
+
+// Book Club — a library-wide shared reading space (free, no AI required).
+// A cycle only ever references a BibliographicRecord; the owned copy used for
+// rating is resolved by matching record_id in the books list, mirroring the
+// real app's "reuse BookRating on the owned copy" design.
+export type BookClubCycleStatus = "reading" | "discussing" | "archived";
+
+export interface BookClubCycle {
+  id: string;
+  record_id: string;
+  title: string;
+  status: BookClubCycleStatus;
+  reading_start: string | null;
+  reading_end: string | null;
+  created_by: string;
+  created_at: string;
+}
+
+export interface BookClubPost {
+  id: string;
+  cycle_id: string;
+  user_id: string;
+  body: string;
+  parent_post_id: string | null;
+  is_spoiler: boolean;
+  created_at: string;
+}
+
+export interface BookClubProposal {
+  id: string;
+  record_id: string;
+  proposed_by: string;
+  note: string | null;
+  created_at: string;
+}
+
+export interface BookClubVote {
+  id: string;
+  proposal_id: string;
+  user_id: string;
+}
+
+export type BookClubParticipantStatus = "joined" | "finished";
+
+export interface BookClubParticipant {
+  id: string;
+  cycle_id: string;
+  user_id: string;
+  status: BookClubParticipantStatus;
+}
+
+export interface BookClubMeeting {
+  id: string;
+  cycle_id: string;
+  scheduled_at: string;
+  note: string | null;
+  created_by: string;
 }
 
 export interface WishlistItem {

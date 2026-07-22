@@ -1,7 +1,9 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import type {
-  BibliographicRecord, BookHistory, BookLoan, BookRating, BookRead, Bookcase, Family, Genre, Incipit,
-  OwnedBook, ReadingStatus, Room, Section, Shelf, User, UserRole, WishlistItem,
+  BibliographicRecord, BookClubCycle, BookClubCycleStatus, BookClubMeeting, BookClubParticipant,
+  BookClubParticipantStatus, BookClubPost, BookClubProposal, BookClubVote, BookHistory, BookLoan, BookRating,
+  BookRead, Bookcase, Family, FamilyChallenge, Genre, Incipit, JournalEntry, OwnedBook, QuizAttempt, QuizQuestion,
+  ReadingPath, ReadingSession, ReadingStatus, Room, Section, Shelf, User, UserRole, WishlistItem,
 } from "../data/types";
 import { RECORDS, OWNED_BOOKS } from "../data/books";
 import { ROOMS, BOOKCASES, SECTIONS, SHELVES } from "../data/locations";
@@ -12,6 +14,10 @@ import { WISHLIST } from "../data/wishlist";
 import { USERS } from "../data/users";
 import { DEFAULT_FAMILY } from "../data/family";
 import { INCIPITS, BOOK_HISTORY } from "../data/extras";
+import { FAMILY_CHALLENGES, JOURNAL_ENTRIES, QUIZ_ATTEMPTS, QUIZ_QUESTIONS, READING_PATHS, READING_SESSIONS } from "../data/kids";
+import {
+  BOOK_CLUB_CYCLES, BOOK_CLUB_MEETINGS, BOOK_CLUB_PARTICIPANTS, BOOK_CLUB_POSTS, BOOK_CLUB_PROPOSALS, BOOK_CLUB_VOTES,
+} from "../data/bookclub";
 
 export interface DataSnapshot {
   family: Family;
@@ -28,6 +34,18 @@ export interface DataSnapshot {
   incipits: Incipit[];
   ratings: BookRating[];
   wishlist: WishlistItem[];
+  readingSessions: ReadingSession[];
+  quizQuestions: QuizQuestion[];
+  quizAttempts: QuizAttempt[];
+  journalEntries: JournalEntry[];
+  readingPaths: ReadingPath[];
+  familyChallenges: FamilyChallenge[];
+  bookClubCycles: BookClubCycle[];
+  bookClubPosts: BookClubPost[];
+  bookClubProposals: BookClubProposal[];
+  bookClubVotes: BookClubVote[];
+  bookClubParticipants: BookClubParticipant[];
+  bookClubMeetings: BookClubMeeting[];
 }
 
 function defaultSnapshot(): DataSnapshot {
@@ -46,6 +64,18 @@ function defaultSnapshot(): DataSnapshot {
     incipits: INCIPITS,
     ratings: RATINGS,
     wishlist: WISHLIST,
+    readingSessions: READING_SESSIONS,
+    quizQuestions: QUIZ_QUESTIONS,
+    quizAttempts: QUIZ_ATTEMPTS,
+    journalEntries: JOURNAL_ENTRIES,
+    readingPaths: READING_PATHS,
+    familyChallenges: FAMILY_CHALLENGES,
+    bookClubCycles: BOOK_CLUB_CYCLES,
+    bookClubPosts: BOOK_CLUB_POSTS,
+    bookClubProposals: BOOK_CLUB_PROPOSALS,
+    bookClubVotes: BOOK_CLUB_VOTES,
+    bookClubParticipants: BOOK_CLUB_PARTICIPANTS,
+    bookClubMeetings: BOOK_CLUB_MEETINGS,
   };
 }
 
@@ -65,6 +95,18 @@ function emptySnapshot(familyName: string, admin: User): DataSnapshot {
     incipits: [],
     ratings: [],
     wishlist: [],
+    readingSessions: [],
+    quizQuestions: [],
+    quizAttempts: [],
+    journalEntries: [],
+    readingPaths: [],
+    familyChallenges: [],
+    bookClubCycles: [],
+    bookClubPosts: [],
+    bookClubProposals: [],
+    bookClubVotes: [],
+    bookClubParticipants: [],
+    bookClubMeetings: [],
   };
 }
 
@@ -163,6 +205,20 @@ interface DataContextValue extends DataSnapshot {
   deleteRating: (id: string) => void;
   addWishlistItem: (userId: string, record: WishlistItem["record"], priority: number | null, notes: string | null) => WishlistItem;
   removeWishlistItem: (id: string) => void;
+  addBookClubCycle: (recordId: string, title: string, createdBy: string, readingStart: string | null, readingEnd: string | null) => BookClubCycle;
+  moveCycleToDiscussion: (id: string) => void;
+  undoMoveToDiscussion: (id: string) => void;
+  archiveCycle: (id: string) => void;
+  reopenCycle: (id: string) => void;
+  addBookClubPost: (cycleId: string, userId: string, body: string, isSpoiler: boolean, parentPostId: string | null) => BookClubPost;
+  deleteBookClubPost: (id: string) => void;
+  addBookClubProposal: (recordId: string, proposedBy: string, note: string | null) => BookClubProposal;
+  toggleBookClubVote: (proposalId: string, userId: string) => boolean;
+  promoteBookClubProposal: (proposalId: string, createdBy: string) => BookClubCycle | null;
+  joinBookClubCycle: (cycleId: string, userId: string) => BookClubParticipant;
+  setBookClubParticipantStatus: (cycleId: string, userId: string, status: BookClubParticipantStatus) => void;
+  scheduleBookClubMeeting: (cycleId: string, scheduledAt: string, note: string | null, createdBy: string) => BookClubMeeting;
+  deleteBookClubMeeting: (id: string) => void;
   resetToSeed: () => void;
   wipeFamily: (familyName: string, admin: { name: string; email: string }) => User;
   replaceSnapshot: (snapshot: DataSnapshot) => void;
@@ -418,6 +474,121 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
       removeWishlistItem(id) {
         setSnapshot((s) => ({ ...s, wishlist: s.wishlist.filter((w) => w.id !== id) }));
+      },
+
+      addBookClubCycle(recordId, title, createdBy, readingStart, readingEnd) {
+        const cycle: BookClubCycle = {
+          id: newId("bc"), record_id: recordId, title, status: "reading",
+          reading_start: readingStart, reading_end: readingEnd, created_by: createdBy,
+          created_at: new Date().toISOString(),
+        };
+        setSnapshot((s) => ({ ...s, bookClubCycles: [...s.bookClubCycles, cycle] }));
+        return cycle;
+      },
+
+      // Mirrors the real app's transition graph: Reading <-> Discussing,
+      // Discussing -> Archived -> Discussing. A cycle can only close once it
+      // has gone through discussion, and every step is reversible so a
+      // mis-click never locks the group out of writing.
+      moveCycleToDiscussion(id) {
+        setSnapshot((s) => ({
+          ...s,
+          bookClubCycles: s.bookClubCycles.map((c) => (c.id === id && c.status === "reading" ? { ...c, status: "discussing" as BookClubCycleStatus } : c)),
+        }));
+      },
+      undoMoveToDiscussion(id) {
+        setSnapshot((s) => ({
+          ...s,
+          bookClubCycles: s.bookClubCycles.map((c) => (c.id === id && c.status === "discussing" ? { ...c, status: "reading" as BookClubCycleStatus } : c)),
+        }));
+      },
+      archiveCycle(id) {
+        setSnapshot((s) => ({
+          ...s,
+          bookClubCycles: s.bookClubCycles.map((c) => (c.id === id && c.status === "discussing" ? { ...c, status: "archived" as BookClubCycleStatus } : c)),
+        }));
+      },
+      reopenCycle(id) {
+        setSnapshot((s) => ({
+          ...s,
+          bookClubCycles: s.bookClubCycles.map((c) => (c.id === id && c.status === "archived" ? { ...c, status: "discussing" as BookClubCycleStatus } : c)),
+        }));
+      },
+
+      addBookClubPost(cycleId, userId, body, isSpoiler, parentPostId) {
+        const post: BookClubPost = {
+          id: newId("bcp"), cycle_id: cycleId, user_id: userId, body,
+          parent_post_id: parentPostId, is_spoiler: isSpoiler, created_at: new Date().toISOString(),
+        };
+        setSnapshot((s) => ({ ...s, bookClubPosts: [...s.bookClubPosts, post] }));
+        return post;
+      },
+      deleteBookClubPost(id) {
+        setSnapshot((s) => ({ ...s, bookClubPosts: s.bookClubPosts.filter((p) => p.id !== id) }));
+      },
+
+      addBookClubProposal(recordId, proposedBy, note) {
+        const proposal: BookClubProposal = { id: newId("bcpr"), record_id: recordId, proposed_by: proposedBy, note, created_at: new Date().toISOString() };
+        setSnapshot((s) => ({ ...s, bookClubProposals: [...s.bookClubProposals, proposal] }));
+        return proposal;
+      },
+
+      toggleBookClubVote(proposalId, userId) {
+        const existing = snapshot.bookClubVotes.find((v) => v.proposal_id === proposalId && v.user_id === userId);
+        setSnapshot((s) => ({
+          ...s,
+          bookClubVotes: existing
+            ? s.bookClubVotes.filter((v) => v.id !== existing.id)
+            : [...s.bookClubVotes, { id: newId("bcv"), proposal_id: proposalId, user_id: userId }],
+        }));
+        return !existing;
+      },
+
+      // Turns the winning proposal into a new cycle and clears the whole
+      // proposal pool (and its votes) — a fresh voting round starts empty.
+      promoteBookClubProposal(proposalId, createdBy) {
+        const proposal = snapshot.bookClubProposals.find((p) => p.id === proposalId);
+        if (!proposal) return null;
+        const record = snapshot.records.find((r) => r.id === proposal.record_id);
+        const cycle: BookClubCycle = {
+          id: newId("bc"), record_id: proposal.record_id, title: record?.title ?? "",
+          status: "reading", reading_start: null, reading_end: null,
+          created_by: createdBy, created_at: new Date().toISOString(),
+        };
+        setSnapshot((s) => ({
+          ...s,
+          bookClubCycles: [...s.bookClubCycles, cycle],
+          bookClubProposals: [],
+          bookClubVotes: [],
+        }));
+        return cycle;
+      },
+
+      joinBookClubCycle(cycleId, userId) {
+        const existing = snapshot.bookClubParticipants.find((p) => p.cycle_id === cycleId && p.user_id === userId);
+        if (existing) return existing;
+        const participant: BookClubParticipant = { id: newId("bcpt"), cycle_id: cycleId, user_id: userId, status: "joined" };
+        setSnapshot((s) => ({ ...s, bookClubParticipants: [...s.bookClubParticipants, participant] }));
+        return participant;
+      },
+
+      setBookClubParticipantStatus(cycleId, userId, status) {
+        setSnapshot((s) => ({
+          ...s,
+          bookClubParticipants: s.bookClubParticipants.map((p) =>
+            p.cycle_id === cycleId && p.user_id === userId ? { ...p, status } : p,
+          ),
+        }));
+      },
+
+      scheduleBookClubMeeting(cycleId, scheduledAt, note, createdBy) {
+        const meeting: BookClubMeeting = { id: newId("bcm"), cycle_id: cycleId, scheduled_at: scheduledAt, note, created_by: createdBy };
+        setSnapshot((s) => ({ ...s, bookClubMeetings: [...s.bookClubMeetings, meeting] }));
+        return meeting;
+      },
+
+      deleteBookClubMeeting(id) {
+        setSnapshot((s) => ({ ...s, bookClubMeetings: s.bookClubMeetings.filter((m) => m.id !== id) }));
       },
 
       resetToSeed() {
