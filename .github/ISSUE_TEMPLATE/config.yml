@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Installer / Docker Compose issues
+    url: https://github.com/jinbocho/jinbocho-install-community-v1/issues
+    about: Bugs in the self-host installer belong there, not here.
+  - name: Application bugs (auth/catalog/gateway/AI/frontend)
+    url: mailto:info@jinbocho.eu
+    about: Those repos are closed-source; report issues by email.
